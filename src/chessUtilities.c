@@ -1,27 +1,31 @@
 #include "../include/chessUtilities.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 void setDefaultPiece() {}
 
-char *get_str_position(u8 row, u8 column) {
+char *get_str_position(const u8 row, const u8 column) {
   char *str = malloc(sizeof(char) * 3);
+  if (str){
   str[0] = 'A' + column;
   str[1] = '1' + row;
   str[2] = '\0';
+  }
+
   return str;
 }
 
-u8 get_num_position(char *str) {
+u8 get_num_position(const char *str) {
   return (str[0]-'A'+1)*10 + (str[1]-'1'+1);
 }
 
 
 void CreateBoard(struct ChessGame *global) {
-  char *start_piece_position =
+
+  const char *start_piece_position =
       "dnbkqbndppppppppeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePPPPPPPPDNBKQBND";
   global->ChessBoard = (malloc(sizeof(struct square **) * 8));
-
 
   for (int i = 0; i < 8; ++i) {
     global->ChessBoard[i] = (malloc(sizeof(struct square *) * 8));

@@ -6,12 +6,14 @@
 struct square ***table = NULL;
 
 int main(int argc, char *argv[]) {
-  struct ChessGame *global = (malloc(sizeof(struct ChessGame)));
+  struct ChessGame *global;
+  global = (struct ChessGame *)(malloc(sizeof(struct ChessGame)));
+  if (global){
+    table = global->ChessBoard;
+    CreateBoard(global);
 
-  table = global->ChessBoard;
-
-  CreateBoard(global);
-  printf_board(global->ChessBoard);
-  printf("hello worldd");
+    printf_board(global->ChessBoard);
+    printf("hello worldd");
+  }
   return 0;
 }
