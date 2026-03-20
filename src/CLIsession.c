@@ -1,8 +1,10 @@
 /* parsing input, display, output */
-#include "../include/CLIsession.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "../include/CLIsession.h"
+#include "../include/chessUtilities.h"
 
 static u8 find_obj(const char *str, const char obj) {
   for (u32 i = 0; i < strlen(str); ++i)
@@ -46,22 +48,59 @@ char **parsing_user_move(const char *user_move) {
   
 }
 
-void runtime(){
-  u8 status = GAME_STATUS_SESSION_ACTIVE;
+char get_fig_symbol(enum type_pieces *type, enum color *color) {
+    // printf(*color == black ? "IT IS BLACK\n" : "IT IS WHITE\n");
+    switch(*type) {
+        case pawn:      return *color == black ? 'p' : 'P';
+        case king:      return *color == black ? 'k' : 'K';
+        case queen:     return *color == black ? 'q' : 'Q';
+        case rook:      return *color == black ? 'r' : 'R';
+        case bishop:    return *color == black ? 'b' : 'B';
+        case knight:    return *color == black ? 'n' : 'N';
+        case empty:     return '.';
+        default: {
+            printf("%s:%d default error\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+    };
+};
 
 
-  while (status == GAME_STATUS_SESSION_ACTIVE){
-    char *user_input = (char *)(malloc(sizeof(char)*10));
-    if (user_input)
-      scanf("%9s", user_input);
-    
-  }
+void print_ChessBoard_CLI(struct square ***ChessBoard, enum color *user_side) {
+    // printf_ascii_charactrers();
+    switch (*user_side) {
+        case white: {
+            printf("    A B C D E F G H\n");
+            for (u8 i = 0; i < 8; ++i) {
+                printf("%d | ", 8 - i);
+                for (u8 j = 0; j < 8; ++j) {
+                    printf("%c ", get_fig_symbol(&ChessBoard[i][j]->obj.type,
+                                                &ChessBoard[i][j]->obj.side));
+                }
+                printf("| %d\n", 8 - i);
+            }
+            printf("    A B C D E F G H\n");
+            break;
+        }
+        case black: {
+            printf("    H G F E D C B A\n");
+            for (u8 i = 0; i < 8; ++i) {
+                printf("%d | ", i + 1);
+                for (u8 j = 0; j < 8; ++j) {
+                    printf("%c ", get_fig_symbol(
+                                &ChessBoard[i][j]->obj.type,
+                                &ChessBoard[i][j]->obj.side));
+                }
+                printf("| %d\n", i + 1);
+            }
+            printf("    H G F E D C B A\n");
+            break;
+        }
+        default: {
+            printf("%s:%d default error\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+    };
+};
 
-  switch (status){
-
-  }
-}
-
-void parsing_input(const char *inp){
-
-}
+void parsing_input(const char *inp) {};

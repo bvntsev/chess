@@ -1,14 +1,15 @@
 #ifndef CLISSSION
 #define CLISSSION
 
+#ifndef GAMESESSION
 #include "GameSession.h"
+#endif GAMESESSION
+#ifndef CHESSUTILITIES
+#include "chessUtilities.h"
+#endif
 
 char **parsing_user_move(const char *user_move);
 
-#define GAME_STATUS_SESSION_ACTIVE 1
-#define GAME_STATUS_END_CHECKMATE_BLACK 2
-#define GAME_STATUS_END_CHECKMATE_WHITE 3
-#define GAME_STATUS_END_STALEMATE 4
-
+void print_ChessBoard_CLI(struct square ***ChessBoard, enum color *user_side);
 
 #endif /* CLISSSION */
