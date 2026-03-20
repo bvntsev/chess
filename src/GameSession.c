@@ -25,10 +25,7 @@ u8 check_correct_move_user(char *startnig_pos, char *final_pos) {
   }
 
   switch (table[ROW_START][COLUMN_START]->obj.type) {
-  case pawn: {
-  /*   if() */
-
-  /* } */
+  case pawn: {}
     case bishop: {}
     case knight: {}
     case rook: {}
@@ -44,5 +41,4 @@ u8 check_correct_move_user(char *startnig_pos, char *final_pos) {
 #undef COLUMN_FINAL
 
   return 1;
-  }
-}
+ }

@@ -1,12 +1,11 @@
 # === config ===
 include config.mk
 
-# get the files
-SRCS := $(wildcard $(SRC_DIR)/*.c) 
-# replace the .c names to .o
-OBJS := $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(SRCS))
+# get source files
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(SRCS))
 
-all: $(BIN)
+all: clean $(BIN) run
 
 $(BIN): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
@@ -15,12 +14,12 @@ $(BIN_DIR)/%.o: $(SRC_DIR)/%.c | $(BIN_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BIN_DIR):
-	mkdir p $@
+	mkdir -p $(BIN_DIR)
 
 clean:
-	rm -rf $(BIN_DIR) $(BIN)
+	rm -rf $(BUILD_DIR) $(BIN)
 
-run: 
+run:
 	./$(BIN)
 
 run_debug:
