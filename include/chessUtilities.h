@@ -11,7 +11,9 @@ typedef unsigned long   u64;
 enum color { none = 0, black = 1, white = 2 };
 
 enum type_pieces
-{ empty = 5, pawn = 0, knight = 6, bishop = 2, rook = 4, king = 1, queen = 3};
+{ empty = 5, pawn = 0, knight = 6, bishop = 2,
+    rook = 4, king = 1, queen = 3
+};
 
 struct piece {
   enum color        side;

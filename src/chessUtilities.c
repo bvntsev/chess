@@ -55,7 +55,8 @@ static char *get_start_pos_str(enum color *user_side){
 
 static void printf_debug(struct square ***ChessBoard);
 
-struct square ***create_ChessBoard_w(struct square ***ChessBoard, char *start_pos) {
+struct square ***create_ChessBoard_w
+                            (struct square ***ChessBoard, char *start_pos) {
     ChessBoard = (malloc(sizeof(struct square **) * 8));
     for (char i = 8; i > 0; --i) {
         ChessBoard[i - 1] = (malloc(sizeof(struct square *) * 8));
@@ -81,7 +82,8 @@ struct square ***create_ChessBoard_w(struct square ***ChessBoard, char *start_po
 
 
 
-struct square ***create_ChessBoard_b(struct square ***ChessBoard, char *start_pos) {
+struct square ***create_ChessBoard_b(
+                                struct square ***ChessBoard, char *start_pos) {
     ChessBoard = (malloc(sizeof(struct square **) * 8));
     for (int i = 0; i < 8; ++i) {
         ChessBoard[i] = (malloc(sizeof(struct square *) * 8));
@@ -106,7 +108,8 @@ struct square ***create_ChessBoard_b(struct square ***ChessBoard, char *start_po
 }
 
 
-struct square ***create_ChessBoard(struct square ***ChessBoard, enum color *user_side) {
+struct square ***create_ChessBoard
+                        (struct square ***ChessBoard, enum color *user_side) {
     char *start_pos = get_start_pos_str(user_side);
     switch (*user_side) {
         case black: return create_ChessBoard_b(ChessBoard, start_pos);

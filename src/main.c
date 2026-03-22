@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
         global->ChessBoard = create_ChessBoard(ChessBoard, &global->user_side);
         ChessBoard = global->ChessBoard;
-        print_ChessBoard_CLI(ChessBoard, &global->user_side);
+        run_session(global);
     }
     free(global);
     return 0;

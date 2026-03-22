@@ -48,7 +48,7 @@ char **parsing_user_move(const char *user_move) {
   
 }
 
-char get_fig_symbol(enum type_pieces *type, enum color *color) {
+static char get_fig_symbol(enum type_pieces *type, enum color *color) {
     // printf(*color == black ? "IT IS BLACK\n" : "IT IS WHITE\n");
     switch(*type) {
         case pawn:      return *color == black ? 'p' : 'P';
