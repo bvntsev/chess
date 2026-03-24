@@ -18,6 +18,7 @@
 
 #define GET_STANDART_SYMBOL(symb) (32 * (symb < 97)) + symb
 
+
 void run_session(struct ChessGame *global);
 
-#endif /* GAMESSSION */
+#endif

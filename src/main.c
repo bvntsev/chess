@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
         if (argc > 1)
             global->user_side = (argv[1][0] == 'w') + 1;
         else
-            global->user_side = white;
+            global->user_side = white; // black incorrect symb white incorrect numb
 
         global->ChessBoard = create_ChessBoard(ChessBoard, &global->user_side);
         ChessBoard = global->ChessBoard;

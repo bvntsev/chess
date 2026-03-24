@@ -32,8 +32,9 @@ static void print_ChessBoard_CLI(struct square ***ChessBoard, enum color *user_s
             for (u8 i = 0; i < 8; ++i) {
                 printf("%d | ", 8 - i);
                 for (u8 j = 0; j < 8; ++j) {
-                    printf("%c ", get_fig_symbol(&ChessBoard[i][j]->obj.type,
-                                                &ChessBoard[i][j]->obj.side));
+                    printf("%c ", get_fig_symbol(
+                                &ChessBoard[i][j]->obj.type,
+                                &ChessBoard[i][j]->obj.side));
                 }
                 printf("| %d\n", 8 - i);
             }
@@ -44,10 +45,10 @@ static void print_ChessBoard_CLI(struct square ***ChessBoard, enum color *user_s
             printf("    H G F E D C B A\n");
             for (u8 i = 0; i < 8; ++i) {
                 printf("%d | ", i + 1);
-                for (u8 j = 0; j < 8; ++j) {
+                for (u8 j = 8; j > 0; --j) {
                     printf("%c ", get_fig_symbol(
-                                &ChessBoard[i][j]->obj.type,
-                                &ChessBoard[i][j]->obj.side));
+                                &ChessBoard[i][j - 1]->obj.type,
+                                &ChessBoard[i][j - 1]->obj.side));
                 }
                 printf("| %d\n", i + 1);
             }
@@ -199,7 +200,6 @@ void run_session(struct ChessGame *global) {
             char opos = get_pos_value(&pos[0][0], &pos[0][1]);
             if (global->ChessBoard[(opos - 1) / 8][(opos - 1) % 8]->obj.type ==
                 empty) {
-            printf("ERROR_MOVE_EMPTY_SQUARE\n");
             free(user_input); free(pos);
             continue;
             }
