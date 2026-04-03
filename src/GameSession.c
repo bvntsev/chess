@@ -6,6 +6,7 @@
 #include "../include/chessUtilities.h"
 #include "../include/GameSession.h"
 
+
 char get_fig_symbol(enum type_pieces *type, enum color *color) {
     // printf(*color == black ? "IT IS BLACK\n" : "IT IS WHITE\n");
     switch(*type) {
@@ -20,8 +21,8 @@ char get_fig_symbol(enum type_pieces *type, enum color *color) {
             printf("%s:%d default error\n", __FILE__, __LINE__);
             exit(-1);
         }
-    };
-};
+    }
+}
 
 
 static void print_ChessBoard_CLI(struct square ***ChessBoard, enum color *user_side) {
@@ -59,26 +60,30 @@ static void print_ChessBoard_CLI(struct square ***ChessBoard, enum color *user_s
             printf("%s:%d default error\n", __FILE__, __LINE__);
             exit(-1);
         }
-    };
-};
+    }
+}
 
-static char get_pos_value(char *symbol, char *number) {
-    return ((GET_STANDART_SYMBOL(*symbol) - 96)) + ((*number - 49) * 8);
-};
+
+static unsigned char get_pos_value
+                        (char *symbol, char *number, enum color *user_side) {
+    return ((GET_STANDART_SYMBOL(*symbol) - 96))    + 
+        // ((64 - *number) * 8) * *user_side == white  + 
+        ((*number - 1) * 8);
+}
 
 
 static enum type_pieces get_pieces_type(unsigned char symb) {
-    symb = GET_STANDART_SYMBOL(symb) * !(symb > 'h');
+    symb = GET_STANDART_SYMBOL(symb);
     switch (symb) {
-        case 'n': return knight;
-        case 'q': return queen;
-        case 'k': return king;
-        case 'r': return rook;
-        case 'b': return bishop;
-        case 'p': return pawn;
-        default: return empty;
-    };
-};
+        case 'n':   return knight;
+        case 'q':   return queen;
+        case 'k':   return king;
+        case 'r':   return rook;
+        case 'b':   return bishop;
+        case 'p':   return pawn;
+        default :   return empty;
+    }
+}
 
 
 static char check_correct_input(char **pos) {
@@ -87,7 +92,7 @@ static char check_correct_input(char **pos) {
         return 0;
     return ERROR_INPUT_INCORRECT_SYMBOL;
 
-};
+}
 
 
 static unsigned char input_proc(char *input, char **pos) {
@@ -101,32 +106,33 @@ static unsigned char input_proc(char *input, char **pos) {
                  GET_STANDART_SYMBOL(input[iter]) <= 'h') {
                 pos[lpos++] = &input[iter];
             }
-        };
+        }
         if (lpos < 2) return ERROR_INPUT_INCORRECT_LEN;
         if (check_correct_input(pos)) return ERROR_INPUT_INCORRECT_SYMBOL;
     }
     return 0;
-};
+}
 
 
 static unsigned char user_move(
         struct ChessGame *global, unsigned char *opos, unsigned char *npos
         ) {
-    if (global->ChessBoard[(*opos - 1) / 8][(*opos - 1) % 8]->obj.side
-                                                        != global->user_side) {
-        printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
-        return ERROR_MOVE_FIGURE_OF_OTHER_SIDE;
-    }
     // for a while just replace. In the future I add completly checking correct
     printf("opos - %d%d\n", (*opos - 1) / 8, (*opos - 1) % 8);
     printf("npos - %d%d\n", (*npos - 1) / 8, (*npos - 1) % 8);
 
-    printf("opos type %c\n", get_fig_symbol(&global->ChessBoard[(*opos - 1) / 8][(*opos - 1) % 8]->obj.type,
+    printf("opos type %c\n", get_fig_symbol(&global->ChessBoard[(*opos - 1) / 8]
+                [(*opos - 1) % 8]->obj.type,
             &global->ChessBoard[(*opos - 1) / 8][(*opos - 1) % 8]->obj.side));
 
-    printf("npos type %c\n", get_fig_symbol(&global->ChessBoard[(*npos - 1) / 8][(*npos - 1) % 8]->obj.type,
+    printf("npos type %c\n", get_fig_symbol(&global->ChessBoard[(*npos - 1) / 8]
+                [(*npos - 1) % 8]->obj.type,
             &global->ChessBoard[(*npos - 1) / 8][(*npos - 1) % 8]->obj.side));
 
+    // 64 - A - 1 / 8
+
+  
+    // black
     global->ChessBoard[(*npos - 1) / 8][(*npos - 1) % 8]->obj.type =
             global->ChessBoard[(*opos - 1) / 8][(*opos - 1) % 8]->obj.type;
     global->ChessBoard[(*npos - 1) / 8][(*npos - 1) % 8]->obj.side =
@@ -137,7 +143,7 @@ static unsigned char user_move(
     
 
     return 0;
-};
+}
 
 
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
@@ -196,14 +202,25 @@ void run_session(struct ChessGame *global) {
                         printf("Incorrect number of pos. Check --help\n");
                         exit(-1);
                         break;
-            };
-            char opos = get_pos_value(&pos[0][0], &pos[0][1]);
+            }
+            unsigned char opos = get_pos_value(&pos[0][0], &pos[0][1],
+                    &global->user_side);
             if (global->ChessBoard[(opos - 1) / 8][(opos - 1) % 8]->obj.type ==
                 empty) {
-            free(user_input); free(pos);
-            continue;
+                printf("ERROR: EMPTY SQUARE MOVED\n");
+                free(user_input); free(pos);
+                continue;
             }
-            char npos = get_pos_value(&pos[1][0], &pos[1][1]);
+            if (global->ChessBoard[(opos - 1) / 8][(opos - 1) % 8]->obj.side != 
+                                                        global->user_side) {
+
+                printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
+                free(user_input); free(pos);
+                continue;
+            }
+            unsigned char npos = get_pos_value(&pos[1][0], &pos[1][1],
+                    &global->user_side);
+
             printf("opos=%d\nnpos=%d\n", opos, npos);
             err = user_move(global, &opos, &npos);
             free(pos);
@@ -211,7 +228,7 @@ void run_session(struct ChessGame *global) {
         free(user_input);
   }
 
-  switch (status){
+  switch (status) {
 
   }
 }

@@ -1,5 +1,6 @@
 # TODO
 ~~## FIX many problems~~  
+## Fix bug with incorrect seeing move  
 ## Write user-session features  
 ### Infinity loop  
 ### Reading user move and change the board  

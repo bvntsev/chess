@@ -79,6 +79,7 @@ struct square ***create_ChessBoard
             ChessBoard[i][j]->pos = i * 8 + (8 - j);
         }
     }
+    printf_debug(ChessBoard);
     return ChessBoard;
 }
 
