@@ -22,7 +22,9 @@ clean:
 run:
 	./$(BIN)
 
-run_debug:
+debug_all: clean $(BIN) debug
+
+debug:
 	gdb $(BIN)
 
-.PHONY: all clean run run_debug
+.PHONY: all clean run debug debug_all

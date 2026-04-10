@@ -1,19 +1,16 @@
 #ifndef CHESSUTILITIES
 #define CHESSUTILITIES
 
-typedef unsigned char   u8;
-typedef unsigned short  u16;
-typedef unsigned int    u32;
-typedef unsigned long   u64;
+#include <stdint.h>
 
 #define PRINT_DASH printf("==============================================\n");
 
+#ifndef CLISSSION
 enum color { none = 0, black = 1, white = 2 };
+#endif
 
 enum type_pieces
-{ empty = 5, pawn = 0, knight = 6, bishop = 2,
-    rook = 4, king = 1, queen = 3
-};
+{ empty = 5, pawn = 0, knight = 6, bishop = 2, rook = 4, king = 1, queen = 3 };
 
 struct piece {
   enum color        side;
@@ -21,8 +18,9 @@ struct piece {
 };
 
 struct square {
-  char              pos;
   enum color        side;
+  int8_t            pos;
+  int8_t            attacked;
   struct piece      obj;
 };
 

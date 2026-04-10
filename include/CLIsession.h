@@ -1,15 +1,19 @@
 #ifndef CLISSSION
 #define CLISSSION
 
-#ifndef GAMESESSION
-#include "GameSession.h"
-#endif GAMESESSION
+struct square;
+
 #ifndef CHESSUTILITIES
-#include "chessUtilities.h"
+enum color { none = 0, black = 1, white = 2 };
 #endif
 
-char **parsing_user_move(const char *user_move);
+#define EXIT_CODE                   0xff
+#define HELP_CODE                   0xfa
+#define INCORRECT_COMMAND_CODE      0xfb
 
-void print_ChessBoard_CLI(struct square ***ChessBoard, enum color *user_side);
+#define GET_STANDART_SYMBOL(symb) (32 * (symb < 97)) + symb
+
+#include <stdint.h>
+uint8_t CLI_run_session(struct ChessGame *global);
 
 #endif
