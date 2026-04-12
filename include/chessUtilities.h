@@ -20,7 +20,7 @@ struct piece {
 struct square {
   enum color        side;
   int8_t            pos;
-  int8_t            attacked;
+  int8_t           attacked;
   struct piece      obj;
 };
 

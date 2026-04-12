@@ -27,4 +27,12 @@ debug_all: clean $(BIN) debug
 debug:
 	gdb $(BIN)
 
-.PHONY: all clean run debug debug_all
+valgrind_all: clean $(BIN) valgrind
+
+valgrind:
+	valgrind $(BIN)
+
+rm_log_files:
+	rm -f ~/.local/share/bvchess/*.log
+
+.PHONY: all clean run debug debug_all valgrind valgrind_all

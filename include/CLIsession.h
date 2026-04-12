@@ -1,7 +1,6 @@
 #ifndef CLISSSION
 #define CLISSSION
 
-struct square;
 
 #ifndef CHESSUTILITIES
 enum color { none = 0, black = 1, white = 2 };
@@ -14,6 +13,7 @@ enum color { none = 0, black = 1, white = 2 };
 #define GET_STANDART_SYMBOL(symb) (32 * (symb < 97)) + symb
 
 #include <stdint.h>
+struct ChessGame;
 uint8_t CLI_run_session(struct ChessGame *global);
 
 #endif
