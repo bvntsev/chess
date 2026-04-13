@@ -253,8 +253,10 @@ uint8_t CLI_run_session(struct ChessGame *global) {
                     fclose(stream);
                     return -1;
                 }
-                else 
+                else  {
                     user_move(global, &opos, &npos);
+                }
+
             }
             else
                 printf("Invalid move\n");

@@ -151,7 +151,7 @@ int8_t new_debug_record(char *fmt, ...) {
             return -1;
         }
         va_end(ap);
-
+        printf("%s\n", line);
         fputs("DBG: ", dstream);
         fputs(line, dstream);
         fputs("\n", dstream);

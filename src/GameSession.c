@@ -64,58 +64,53 @@ static uint8_t find_figure(struct square ***ChessBoard,
 }
 
 
-// BUG: A piece sees the "ghost" pieces on empty line
-//( Not always, need to find and need to fix why it happens )
-// ( It happened not only on vertical, horizontal too )
 static struct square *check_between_direct_line(
-        struct square ***ChessBoard, uint8_t *opos, uint8_t *kpos, 
-        uint8_t opos_arg)
-        {
-    uint8_t min = (*kpos % 8 < opos_arg) ? *kpos : *opos - 1;
-    uint8_t max = (*kpos % 8 > opos_arg) ? *kpos : *opos - 1;
-    for (uint8_t between = min + 1; between < max; ++between) {
-        if (opos_arg == OPOS_YP) {
-            if (ChessBoard[OPOS_XP][between % 8]->obj.type != empty)
-                return ChessBoard[OPOS_XP][between % 8];
-        }
-        else {
-            if (ChessBoard[between / 8][OPOS_YP]->obj.type != empty) {
-                return ChessBoard[between / 8][OPOS_YP];
-            }
-        }
+        struct square ***ChessBoard, uint8_t *opos, uint8_t *npos, 
+        uint8_t opos_arg) {
+    if (opos_arg == OPOS_XP) {
+        uint8_t min = (OPOS_YP < NPOS_YP) ? OPOS_YP : NPOS_YP;
+        uint8_t max = (OPOS_YP > NPOS_YP) ? OPOS_YP : NPOS_YP;
+        for (uint8_t between = min + 1; between < max; ++between)
+            if (ChessBoard[OPOS_XP][between]->obj.type != empty)
+                return ChessBoard[OPOS_XP][between];
+    }
+    else {
+        uint8_t min = (OPOS_XP < NPOS_XP) ? OPOS_XP : NPOS_XP;
+        uint8_t max = (OPOS_XP > NPOS_XP) ? OPOS_XP : NPOS_XP;
+        for (uint8_t between = min + 1; between < max; ++between)
+            if (ChessBoard[between][OPOS_YP]->obj.type != empty)
+                return ChessBoard[between][OPOS_YP];
     }
     return NULL;
 }
 
-// BUG: This doesn't work If the pieces are 1 square apart
 static struct square *check_between_diagonal(
-        struct square ***ChessBoard, uint8_t *opos, uint8_t *kpos) {
-    uint8_t min = (*kpos / 8 < OPOS_XP) ? *kpos : *opos - 1;
-    uint8_t max = (*kpos / 8 > OPOS_XP) ? *kpos : *opos - 1;
+        struct square ***ChessBoard, uint8_t *opos, uint8_t *npos) {
+    uint8_t min = (OPOS_XP < NPOS_XP) ? *opos - 1 : *npos - 1;
+    if (*opos - 1 == min) printf("opos is min\n");
+    else printf("opos is max\n");
+    uint8_t max = (OPOS_XP > NPOS_XP) ? *opos - 1 : *npos - 1;
+    printf("min %d max %d\n", min, max);
     if (min % 8 < max % 8) {
-        for (uint8_t diag = min / 8 + 1; min < max / 8; ++diag) {
+        for (uint8_t diag = min / 8 + 1; diag < max / 8; ++diag) {
             if (ChessBoard[diag][min % 8 + (diag - (min / 8))]->obj.type
                     != empty)
                 return ChessBoard[diag][min % 8 + (diag - (min / 8))];
         }
     }
     else {
-        for (uint8_t diag = min / 8 + 1; min < max / 8; ++diag) {
+        for (uint8_t diag = min / 8 + 1; diag < max / 8; ++diag) {
+            new_debug_record("%d", ChessBoard[diag][min % 8 - (diag - (min / 8))]->obj.type);
             if (ChessBoard[diag][min % 8 - (diag - (min / 8))]->obj.type
                     != empty)
-                return ChessBoard[diag][min % 8 + (diag - (min / 8))];
+                return ChessBoard[diag][min % 8 - (diag - (min / 8))];
         }
-
     }
     printf("DIAGONAL CHECKING END WITHOUT FIGURE\n");
     return NULL;
 }
 
 
-// BUG: Diagonal checking works poor. Doesn't see any piece between
-// friendly non-king piece and enemy diagonal piece (queen/bishop)
-// At first need to fix bug with checking between diagonal
-// (probably than I'd find a solve problem completely
 static uint8_t check_hidden_king_attack(
         struct ChessGame *global, uint8_t *opos) {
     uint8_t kpos = find_figure(global->ChessBoard, global->user_side, king);
@@ -125,8 +120,11 @@ static uint8_t check_hidden_king_attack(
     }
     if (OPOS_XP == kpos / 8) { // horizontal
         printf("HORIZONTAL\n");
+        kpos++;
         struct square *non_empty = check_between_direct_line(
-                        global->ChessBoard, opos, &kpos, OPOS_YP);
+                        global->ChessBoard, opos, &kpos, OPOS_XP);
+        // segm fault because kpos in [0, 63]. Func use - 1 for opos/npos
+        kpos--;
         if (non_empty == NULL) {
             if (OPOS_YP > kpos % 8) {
                 for (uint8_t horiz = OPOS_YP + 1; horiz < 8; ++horiz) {
@@ -155,8 +153,11 @@ static uint8_t check_hidden_king_attack(
 
     if (OPOS_YP == kpos % 8) { // vertical
         printf("VERTICAL\n");
+        kpos++;
         struct square *non_empty = check_between_direct_line(
-                        global->ChessBoard, opos, &kpos, OPOS_XP);
+                        global->ChessBoard, opos, &kpos, OPOS_YP);
+        // segm fault because kpos in [0, 63]. Func use - 1 for opos/npos
+        kpos--;
         if (non_empty == NULL) {
             if (OPOS_XP < kpos / 8) {
                 for (int8_t vert = OPOS_XP - 1; vert >= 0; --vert) {
@@ -187,31 +188,47 @@ static uint8_t check_hidden_king_attack(
         printf("DIAGONAL\n");
         uint8_t min = (kpos / 8 < OPOS_XP) ? kpos : *opos - 1;
         uint8_t max = (kpos / 8 > OPOS_XP) ? kpos : *opos - 1;
+        ++kpos;
         struct square *non_empty = check_between_diagonal(
                 global->ChessBoard, opos, &kpos);
+        --kpos;
         if (non_empty == NULL) {
             if (OPOS_XP < kpos / 8) {
                 if (OPOS_YP < kpos % 8) {
-                    for (int8_t diag = OPOS_XP - 1; diag >= 0 && OPOS_YP - (OPOS_XP - diag) >= 0; --diag)
-                        if (global->ChessBoard[diag][OPOS_YP - (OPOS_XP - diag)] ->obj. type != empty)
+                    new_debug_record("diagonal loop #1");
+                    for (int8_t diag = OPOS_XP - 1; diag >= 0 && OPOS_YP - (OPOS_XP - diag) >= 0; --diag) {
+                        // new_debug_record("%d", global->ChessBoard[diag][OPOS_YP - (OPOS_XP - diag)]->obj.type);
+                        if (global->ChessBoard[diag][OPOS_YP - (OPOS_XP - diag)]->obj.type != empty) {
                             non_empty = global->ChessBoard[diag][OPOS_YP - (OPOS_XP - diag)];
+                            break;
+                        }
+                    }
                 }
                 else {
+                    new_debug_record("diagonal loop #2");
                     for (int8_t diag = OPOS_XP - 1; diag >= 0 && OPOS_YP + (OPOS_XP - diag) < 8; --diag)
-                        if (global->ChessBoard[diag][OPOS_YP + (OPOS_XP - diag)] ->obj. type != empty)
+                        if (global->ChessBoard[diag][OPOS_YP + (OPOS_XP - diag)]->obj.type != empty) {
                             non_empty = global->ChessBoard[diag][OPOS_YP + (OPOS_XP - diag)];
+                            break;
+                        }
                 }
             }
             else {
+                new_debug_record("diagonal loop #3");
                 if (OPOS_YP < kpos % 8) {
                     for (int8_t diag = OPOS_XP + 1; diag < 8 && OPOS_YP - (diag - OPOS_XP) >= 0; diag++) 
-                        if (global->ChessBoard[diag][OPOS_YP - (diag - OPOS_XP)] ->obj. type != empty)
+                        if (global->ChessBoard[diag][OPOS_YP - (diag - OPOS_XP)]->obj.type != empty) {
                             non_empty = global->ChessBoard[diag][OPOS_YP - (diag - OPOS_XP)];
+                            break;
+                        }
                 }
                 else {
+                    new_debug_record("diagonal loop #4");
                     for (int8_t diag = OPOS_XP + 1; diag < 8 && OPOS_YP + (diag - OPOS_XP) < 8; diag++) 
-                        if (global->ChessBoard[diag][OPOS_YP + (diag - OPOS_XP)] ->obj. type != empty)
+                        if (global->ChessBoard[diag][OPOS_YP + (diag - OPOS_XP)]->obj.type != empty) {
                             non_empty = global->ChessBoard[diag][OPOS_YP + (diag - OPOS_XP)];
+                            break;
+                        }
                 }
             }
         }
@@ -271,6 +288,7 @@ int32_t check_correct_of_movement(
             return ERROR_KNIGHT_INCORRECT_MOVE;
         }
         case king: {
+                       break;
             if (global->ChessBoard[NPOS_XP][NPOS_YP]->attacked < 0) {
                 new_debug_record("ERROR_KING_MOVE_TO_ATTACKED_SQUARE");
                 return ERROR_KING_MOVE_TO_ATTACKED_SQUARE; 
@@ -281,12 +299,44 @@ int32_t check_correct_of_movement(
             }
             break;
         }
-        case queen: {}
+        case queen: {
+            if (OPOS_XP == NPOS_XP) {
+                if (check_between_direct_line(global->ChessBoard, opos, npos,
+                            OPOS_XP) != NULL) {
+                    new_debug_record("XP ERROR_BETWEEN_OPOS_NPOS_PIECES");
+                    return ERROR_BETWEEN_OPOS_NPOS_PIECES;
+                }
+                else {
+                    break;
+                }
+            }
+            else if (OPOS_YP == NPOS_YP) {
+                if (check_between_direct_line(global->ChessBoard, opos, npos,
+                            OPOS_YP) != NULL) {
+                    new_debug_record("YP ERROR_BETWEEN_OPOS_NPOS_PIECES");
+                    return ERROR_BETWEEN_OPOS_NPOS_PIECES;
+                }
+                else {
+                    break;
+                }
+            }
+            else if (abs(OPOS_XP - NPOS_XP) == abs(OPOS_YP - NPOS_YP)) {
+                if (check_between_diagonal(global->ChessBoard, opos, npos)) {
+                    new_debug_record("A piece between diagonal move queen");
+                    return ERROR_QUEEN_MOVE_THROUGHOUT_A_PIECE;
+                }
+            }
+            else {
+                new_debug_record("ERROR_QUEEN_INCORRECT_MOVE");
+                return ERROR_QUEEN_INCORRECT_MOVE;
+            }
+            break; 
+        }
         case rook: {
             if (OPOS_XP == NPOS_XP) {
                 if (check_between_direct_line(global->ChessBoard, opos, npos,
-                            OPOS_YP) != NULL) {
-                    new_debug_record("ERROR_BETWEEN_OPOS_NPOS_PIECES");
+                            OPOS_XP) != NULL) {
+                    new_debug_record("XP ERROR_BETWEEN_OPOS_NPOS_PIECES");
                     return ERROR_BETWEEN_OPOS_NPOS_PIECES;
                 }
                 else
@@ -294,8 +344,8 @@ int32_t check_correct_of_movement(
             }
             else if (OPOS_YP == NPOS_YP) {
                 if (check_between_direct_line(global->ChessBoard, opos, npos,
-                            OPOS_XP) != NULL) {
-                    new_debug_record("ERROR_BETWEEN_OPOS_NPOS_PIECES");
+                            OPOS_YP) != NULL) {
+                    new_debug_record("YP ERROR_BETWEEN_OPOS_NPOS_PIECES");
                     return ERROR_BETWEEN_OPOS_NPOS_PIECES;
                 }
                 else {
@@ -307,7 +357,17 @@ int32_t check_correct_of_movement(
                 return ERROR_ROOK_INCORRECT_MOVE;
             }
         }
-        case bishop: {}
+        case bishop: {
+            if (abs(OPOS_XP - NPOS_XP) != abs(OPOS_YP - NPOS_YP)) {
+                new_debug_record("Incorrect bishop move");
+                return ERROR_BISHOP_INCORRECT_MOVE;
+            }
+            if (check_between_diagonal(global->ChessBoard, opos, npos)) {
+                new_debug_record("A piece between diagonal move bishop");
+                return ERROR_BISHOP_MOVE_THROUGHOUT_A_PIECE;
+            }
+            break;
+        }
         case empty: { return ERROR_INPUT_ABSENT_PIECES; }
     }
     new_debug_record("Successful check_correct_of_movement %d %d", 
