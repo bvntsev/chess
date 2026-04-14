@@ -5,9 +5,7 @@
 
 #define PRINT_DASH printf("==============================================\n");
 
-#ifndef CLISSSION
 enum color { none = 0, black = 1, white = 2 };
-#endif
 
 enum type_pieces
 { empty = 5, pawn = 0, knight = 6, bishop = 2, rook = 4, king = 1, queen = 3 };
@@ -17,10 +15,17 @@ struct piece {
   enum type_pieces  type;
 };
 
+enum attack_t{
+    by_white = 1,
+    by_black = -1,
+    safe_square = 0,
+    both_attacked
+};
+
 struct square {
   enum color        side;
+  enum attack_t     attacked;
   int8_t            pos;
-  int8_t           attacked;
   struct piece      obj;
 };
 

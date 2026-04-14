@@ -12,9 +12,9 @@
 #include <stddef.h>
 #include <sys/types.h>
 
-#include "../include/chessUtilities.h"
-#include "../include/GameSession.h"
-#include "../include/CLIsession.h"
+#include "../include/CHESSutil.h"
+#include "../include/CHESSsession.h"
+#include "../include/CHESScli.h"
 #include "../include/CHESSlogging.h"
 
 // static enum type_pieces get_pieces_type(uint8_t symb) {
@@ -105,13 +105,13 @@ static void printf_debug(struct square ***ChessBoard) {
     //     }
     // }
 
-    // for (uint8_t i = 0; i < 8; ++i) {
-    //     for (uint8_t j = 0; j < 8; ++j) {
-    //         printf("%d ", ChessBoard[i][j]->attacked);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n");
+    for (uint8_t i = 0; i < 8; ++i) {
+        for (uint8_t j = 0; j < 8; ++j) {
+            printf("%d ", ChessBoard[i][j]->attacked);
+        }
+        printf("\n");
+    }
+    printf("\n");
 
     // for (uint8_t i = 0; i < 8; ++i) {
     //     for (uint8_t j = 0; j < 8; ++j) {
@@ -129,12 +129,12 @@ static void printf_debug(struct square ***ChessBoard) {
     // }
     // printf("\n");
     //
-    for (uint8_t i = 0; i < 8; ++i) {
-        for (uint8_t j = 0; j < 8; ++j) {
-            printf("%d ", ChessBoard[i][j]->pos);
-        }
-        printf("\n");
-    }
+    // for (uint8_t i = 0; i < 8; ++i) {
+    //     for (uint8_t j = 0; j < 8; ++j) {
+    //         printf("%d ", ChessBoard[i][j]->pos);
+    //     }
+    //     printf("\n");
+    // }
     printf("\n");
 }
 
@@ -256,7 +256,6 @@ uint8_t CLI_run_session(struct ChessGame *global) {
                 else  {
                     user_move(global, &opos, &npos);
                 }
-
             }
             else
                 printf("Invalid move\n");

@@ -1,8 +1,8 @@
 #include <stdlib.h>
 
-#include "../include/chessUtilities.h"
-#include "../include/GameSession.h"
-#include "../include/CLIsession.h"
+#include "../include/CHESSutil.h"
+#include "../include/CHESSsession.h"
+#include "../include/CHESScli.h"
 #include "../include/CHESSlogging.h"
 
 

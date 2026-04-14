@@ -1,14 +1,12 @@
-#include "../include/chessUtilities.h"
-#include "../include/GameSession.h"
+#include "../include/CHESSutil.h"
+#include "../include/CHESSsession.h"
 #include "../include/CHESSlogging.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 
-static uint8_t opos_update(
-        struct square ***ChessBoard, uint8_t *opos
-        ) {
+static uint8_t opos_update( struct square ***ChessBoard, uint8_t *opos) {
     switch (ChessBoard[OPOS_XP][OPOS_YP]->obj.type) {
         case pawn: {}
         case knight: {}
@@ -21,12 +19,47 @@ static uint8_t opos_update(
 }
 
 
-static uint8_t npos_update(
-        struct square ***ChessBoard, uint8_t *npos
-        ) {
+static enum attack_t npos_atkd_t_sq_upd(enum color ocolor, enum attack_t type) {
+    if (type == safe_square) return ocolor == white ? by_white :   by_black;
+    if (type == by_black) return ocolor == white ? both_attacked : by_black;
+    if (type == by_white) return ocolor == black ? both_attacked : by_white;
+    return safe_square;
+}
+
+
+static uint8_t npos_update( struct square ***ChessBoard, 
+        struct piece *oobj, uint8_t *npos) {
     switch (ChessBoard[NPOS_XP][NPOS_YP]->obj.type) {
-        case pawn: {}
-        case knight: {}
+        case pawn: {
+        }
+        case knight: {
+            if (NPOS_XP > 1) {
+                if (NPOS_YP == 0) {
+                               ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked = 
+    npos_atkd_t_sq_upd(oobj->side, ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked);
+                }
+            else if (NPOS_YP == 7) {
+                               ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked = 
+    npos_atkd_t_sq_upd(oobj->side, ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked);
+            }
+            else {
+                               ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked = 
+    npos_atkd_t_sq_upd(oobj->side, ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked);
+
+                               ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked = 
+    npos_atkd_t_sq_upd(oobj->side, ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked);
+            }
+
+                               ChessBoard[NPOS_XP - 1][NPOS_YP - 2]->attacked = 
+    npos_atkd_t_sq_upd(oobj->side, ChessBoard[NPOS_XP - 1][NPOS_YP - 2]->attacked);
+
+                               ChessBoard[NPOS_XP + 1][NPOS_YP - 2]->attacked = 
+    npos_atkd_t_sq_upd(oobj->side, ChessBoard[NPOS_XP + 1][NPOS_YP - 2]->attacked);
+                }
+            }
+            if (NPOS_XP < 6) {
+
+            }
         case king: {}
         case queen: {}
         case rook: {}
@@ -39,8 +72,7 @@ static uint8_t npos_update(
 void user_move(
         struct ChessGame *global, uint8_t *opos, uint8_t *npos
         ) {
-
-    npos_update(global->ChessBoard, npos);
+    npos_update(global->ChessBoard, &global->ChessBoard[OPOS_XP][OPOS_YP]->obj, npos);
     global->ChessBoard[NPOS_XP][NPOS_YP]->obj.type =
         global->ChessBoard[OPOS_XP][OPOS_YP]->obj.type;
     global->ChessBoard[NPOS_XP][NPOS_YP]->obj.side =
@@ -253,8 +285,8 @@ static int32_t check_pawn_move(
     else {
         if (abs(OPOS_XP - NPOS_XP) > 2) 
             return ERROR_PAWN_LEN_MORE_THEN_2;
-        else if (abs(OPOS_XP - NPOS_XP) == 2 && OPOS_XP != 6)
-            return ERROR_PAWN_MOVE_2_NOT_IN_START;
+        else if (ChessBoard[NPOS_XP][NPOS_YP]->obj.type != empty)
+            return ERROR_PAWN_MEET_BARRIER;
         else {
 
         }
@@ -273,7 +305,8 @@ int32_t check_correct_of_movement(
         printf("ERROR_INPUT_FRIENDLY_ATTACK\n");
         return ERROR_INPUT_FRIENDLY_ATTACK;
     }
-    if (global->ChessBoard[OPOS_XP][OPOS_YP]->attacked == -1 &&
+    if  (global->ChessBoard[OPOS_XP][OPOS_YP]->attacked ==
+        (global->user_side == white ? by_black : by_white) &&
             check_hidden_king_attack(global, opos)) {
         printf("Failure check_correct_of_movement\n");
         return -1;
@@ -288,8 +321,9 @@ int32_t check_correct_of_movement(
             return ERROR_KNIGHT_INCORRECT_MOVE;
         }
         case king: {
-                       break;
-            if (global->ChessBoard[NPOS_XP][NPOS_YP]->attacked < 0) {
+            if (global->ChessBoard[NPOS_XP][NPOS_YP]->attacked ==
+                (global->ChessBoard[OPOS_XP][NPOS_YP]->obj.side ==
+                 white ? by_black : by_white)) {
                 new_debug_record("ERROR_KING_MOVE_TO_ATTACKED_SQUARE");
                 return ERROR_KING_MOVE_TO_ATTACKED_SQUARE; 
             }

@@ -1,4 +1,4 @@
-#include "../include/chessUtilities.h"
+#include "../include/CHESSutil.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -64,7 +64,6 @@ struct square ***create_ChessBoard
             /* setting color the board squares */
             ChessBoard[i][j]->side = (2 - ((i ^ j) & 1));
             /* setting color of the pieces */
-            // "DNBKQBNDPPPPPPPPEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEppppppppdnbkqbnd"
                 ChessBoard[i][j]->obj.side =
                 ((start_pos[i * 8 + j] ^ 'E') != 0) +
                                     ((start_pos[i * 8 + j] >> 5) & 1);

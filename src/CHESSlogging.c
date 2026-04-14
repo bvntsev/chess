@@ -7,7 +7,7 @@
 #include <stdarg.h>
 
 #include "../include/CHESSlogging.h"
-#include "../include/chessUtilities.h"
+#include "../include/CHESSutil.h"
 
 
 extern enum color *user_side;
