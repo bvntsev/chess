@@ -13,7 +13,9 @@
 extern enum color *user_side;
 
 
-FILE *new_logging(enum logging_t type) {
+FILE *
+new_logging (enum logging_t type)
+{
     struct timespec ts;
     timespec_get(&ts, TIME_UTC);
     char date[255];
@@ -70,7 +72,9 @@ FILE *new_logging(enum logging_t type) {
 }
 
 
-static char *convert_pos_to_str(uint8_t *pos) {
+static char *
+convert_pos_to_str (uint8_t *pos)
+{
     char *str = (char *)(malloc(sizeof(char) * 3));
     str[0] = *user_side == white ? ('a' + ((*pos - 1) % 8)) :
         ('h' - (*pos - 1) % 8);
@@ -82,7 +86,9 @@ static char *convert_pos_to_str(uint8_t *pos) {
 
 
 
-int8_t SIMPLE_new_record( FILE *stream, uint8_t *opos, uint8_t *npos) {
+int8_t
+SIMPLE_new_record (FILE *stream, uint8_t *opos, uint8_t *npos)
+{
     static uint16_t nmove;
     if (!stream) {
         perror("File stream error\n");
@@ -116,7 +122,9 @@ int8_t SIMPLE_new_record( FILE *stream, uint8_t *opos, uint8_t *npos) {
 // }
 
 
-static FILE *get_static_debug_pt(uint8_t status) {
+static FILE *
+get_static_debug_pt (uint8_t status)
+{
     static FILE *dstream;
     if (status == 'w')
         if (!dstream) dstream = new_logging(debugging);
@@ -124,29 +132,35 @@ static FILE *get_static_debug_pt(uint8_t status) {
 }
 
 
-int8_t new_debug_record(char *fmt, ...) {
+int8_t
+new_debug_record (char *fmt, ...)
+{
     FILE *dstream = get_static_debug_pt('w');
-    if (dstream) {
+    if (dstream)
+    {
         int32_t size = 0;
         va_list ap;
         char *line;
         va_start(ap, fmt);
         size = vsnprintf(line, size, fmt, ap);
         va_end(ap);
-        if (size < 0) {
+        if (size < 0)
+        {
             perror("vsnprintf < 0");
             return -1;
         }
         size++;
         line = malloc(size);
-        if (line == NULL) {
+        if (line == NULL)
+        {
             perror("malloc is working failure");
             return -1;
         }
 
         va_start(ap, fmt);
         size = vsnprintf(line, size, fmt, ap);
-        if (size < 0) {
+        if (size < 0)
+        {
             perror("vsnprintf < 0");
             return -1;
         }
@@ -157,7 +171,8 @@ int8_t new_debug_record(char *fmt, ...) {
         fputs("\n", dstream);
         free(line);
     }
-    else {
+    else
+    {
         perror("Incorrect open new debugging log");
         return -1;
     }
@@ -165,7 +180,9 @@ int8_t new_debug_record(char *fmt, ...) {
 }
 
 
-int32_t close_debug_stream() {
+int32_t
+close_debug_stream ()
+{
     FILE *test = get_static_debug_pt('c');
     if (test) return fclose(test);
     return 0;

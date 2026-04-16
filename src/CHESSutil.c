@@ -27,35 +27,11 @@
 // };
 
 
-static char *get_start_pos_str(enum color *user_side){
-    char *start_pos;
-    switch (*user_side) {
-        case black: {
-            start_pos =
-            "dnbkqbndppppppppEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEPPPPPPPPDNBKQBND";
-            break;
-    }
-        case white: {
-            start_pos =
-            "DNBKQBNDPPPPPPPPEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEppppppppdnbkqbnd";
-            break;
-        }
-        case none: {
-            printf("%s:%d none error\n", __FILE__, __LINE__);
-            exit(-1);
-        }
-        default: {
-            printf("%s:%d default error\n", __FILE__, __LINE__);
-            exit(-1);
-        }
-    };
-    return start_pos;
-};
-
-
-struct square ***create_ChessBoard
-                        (struct square ***ChessBoard, enum color *user_side) {
-    char *start_pos = get_start_pos_str(user_side);
+struct square ***
+create_ChessBoard (struct square ***ChessBoard, enum color *user_side)
+{
+    char *start_pos = 
+        "DNBKQBNDPPPPPPPPEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEppppppppdnbkqbnd";
 
     for (uint8_t i = 0; i < 8; ++i) {
         ChessBoard[i] = (malloc(sizeof(struct square *) * 8));

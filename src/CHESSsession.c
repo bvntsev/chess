@@ -6,7 +6,9 @@
 #include <stdlib.h>
 
 
-static uint8_t opos_update( struct square ***ChessBoard, uint8_t *opos) {
+static uint8_t
+opos_update (struct square ***ChessBoard, uint8_t *opos)
+{
     switch (ChessBoard[OPOS_XP][OPOS_YP]->obj.type) {
         case pawn: {}
         case knight: {}
@@ -19,7 +21,9 @@ static uint8_t opos_update( struct square ***ChessBoard, uint8_t *opos) {
 }
 
 
-static enum attack_t npos_atkd_t_sq_upd(enum color ocolor, enum attack_t type) {
+static enum attack_t
+npos_atkd_t_sq_upd (enum color ocolor, enum attack_t type)
+{
     if (type == safe_square) return ocolor == white ? by_white :   by_black;
     if (type == by_black) return ocolor == white ? both_attacked : by_black;
     if (type == by_white) return ocolor == black ? both_attacked : by_white;
@@ -27,12 +31,14 @@ static enum attack_t npos_atkd_t_sq_upd(enum color ocolor, enum attack_t type) {
 }
 
 
-static uint8_t npos_update( struct square ***ChessBoard, 
-        struct piece *oobj, uint8_t *npos) {
+static uint8_t
+npos_update (struct square ***ChessBoard, struct piece *oobj, uint8_t *npos)
+{
     switch (ChessBoard[NPOS_XP][NPOS_YP]->obj.type) {
         case pawn: {
         }
         case knight: {
+            break;
             if (NPOS_XP > 1) {
                 if (NPOS_YP == 0) {
                                ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked = 
@@ -63,15 +69,15 @@ static uint8_t npos_update( struct square ***ChessBoard,
         case king: {}
         case queen: {}
         case rook: {}
-        case bishop: {}
+        case bishop: {break;}
         case empty: { return ERROR_INPUT_ABSENT_PIECES; }
     }
 }
 
 
-void user_move(
-        struct ChessGame *global, uint8_t *opos, uint8_t *npos
-        ) {
+void
+user_move (struct ChessGame *global, uint8_t *opos, uint8_t *npos)
+{
     npos_update(global->ChessBoard, &global->ChessBoard[OPOS_XP][OPOS_YP]->obj, npos);
     global->ChessBoard[NPOS_XP][NPOS_YP]->obj.type =
         global->ChessBoard[OPOS_XP][OPOS_YP]->obj.type;
@@ -84,8 +90,10 @@ void user_move(
 }
 
 
-static uint8_t find_figure(struct square ***ChessBoard, 
-            enum color pcolor, enum type_pieces type) {
+static uint8_t
+find_figure(struct square ***ChessBoard, enum color pcolor,
+            enum type_pieces type)
+{
     for (uint8_t i = 0; i < 8; ++i)
         for (uint8_t j = 0; j < 8; ++j)
             if (ChessBoard[i][j]->obj.type == type &&
@@ -96,9 +104,10 @@ static uint8_t find_figure(struct square ***ChessBoard,
 }
 
 
-static struct square *check_between_direct_line(
-        struct square ***ChessBoard, uint8_t *opos, uint8_t *npos, 
-        uint8_t opos_arg) {
+static struct square *
+check_between_direct_line (struct square ***ChessBoard, uint8_t *opos,
+                            uint8_t *npos, uint8_t opos_arg)
+{
     if (opos_arg == OPOS_XP) {
         uint8_t min = (OPOS_YP < NPOS_YP) ? OPOS_YP : NPOS_YP;
         uint8_t max = (OPOS_YP > NPOS_YP) ? OPOS_YP : NPOS_YP;
@@ -116,8 +125,10 @@ static struct square *check_between_direct_line(
     return NULL;
 }
 
-static struct square *check_between_diagonal(
-        struct square ***ChessBoard, uint8_t *opos, uint8_t *npos) {
+static struct square *
+check_between_diagonal (struct square ***ChessBoard, uint8_t *opos,
+                        uint8_t *npos)
+{
     uint8_t min = (OPOS_XP < NPOS_XP) ? *opos - 1 : *npos - 1;
     if (*opos - 1 == min) printf("opos is min\n");
     else printf("opos is max\n");
@@ -276,9 +287,9 @@ static uint8_t check_hidden_king_attack(
 
 
 // TODO: Check move is only forward and etc.
-static int32_t check_pawn_move(
-        struct square ***ChessBoard, uint8_t *opos, uint8_t *npos
-        ) {
+static int32_t
+check_pawn_move (struct square ***ChessBoard, uint8_t *opos, uint8_t *npos)
+{
     if (OPOS_YP != NPOS_YP) { // atacking
         if ((OPOS_XP == 1 || OPOS_XP == 6)) {}
     }
@@ -295,13 +306,21 @@ static int32_t check_pawn_move(
 }
 
 
-int32_t check_correct_of_movement(
-    struct ChessGame *global, uint8_t *opos, uint8_t *npos) {
+int32_t
+check_correct_of_movement (struct ChessGame *global, uint8_t *opos,
+                            uint8_t *npos)
+{
     if (*opos == *npos) {
         printf("ERROR_MINOR_MOVE\n");
         return ERROR_MINOR_MOVE;
     }
-    if (global->ChessBoard[NPOS_XP][NPOS_YP]->obj.side == global->user_side) {
+    if (global->ChessBoard[OPOS_XP][OPOS_YP]->obj.side != global->user_side)
+    {
+        printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
+        return ERROR_FOREIGN_PIECES;
+    }
+    if (global->ChessBoard[NPOS_XP][NPOS_YP]->obj.side
+            == global->ChessBoard[OPOS_XP][OPOS_YP]->obj.side) {
         printf("ERROR_INPUT_FRIENDLY_ATTACK\n");
         return ERROR_INPUT_FRIENDLY_ATTACK;
     }

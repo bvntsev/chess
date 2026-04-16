@@ -39,7 +39,7 @@
 #define ERROR_QUEEN_MOVE_THROUGHOUT_A_PIECE     0x17
 #define ERROR_QUEEN_INCORRECT_MOVE              0x18
 
-
+#define ERROR_FOREIGN_PIECES                    0x19
 #define OPOS_X  (opos - 1)  / 8
 #define OPOS_Y  (opos - 1)  % 8
 #define OPOS_XP (*opos - 1) / 8

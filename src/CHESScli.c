@@ -31,7 +31,9 @@
 // }
 
 
-static int8_t check_correct_input(char **pos) {
+static int8_t
+check_correct_input (char **pos)
+{
     if ((pos[0][1] && pos[1][1]) && ((pos[0][1] > '0' && pos[0][1] < '9') &&
                                         (pos[1][1] > '0' && pos[1][1] < '9')))
         return 0;
@@ -39,9 +41,12 @@ static int8_t check_correct_input(char **pos) {
 }
 
 
-static int8_t get_fig_symbol(enum type_pieces *type, enum color *color) {
+static int8_t
+get_fig_symbol (enum type_pieces *type, enum color *color)
+{
     // printf(*color == black ? "IT IS BLACK\n" : "IT IS WHITE\n");
-    switch(*type) {
+    switch(*type)
+    {
         case pawn:      return *color == black ? 'p' : 'P';
         case king:      return *color == black ? 'k' : 'K';
         case queen:     return *color == black ? 'q' : 'Q';
@@ -49,7 +54,8 @@ static int8_t get_fig_symbol(enum type_pieces *type, enum color *color) {
         case bishop:    return *color == black ? 'b' : 'B';
         case knight:    return *color == black ? 'n' : 'N';
         case empty:     return '.';
-        default: {
+        default:
+        {
             printf("%s:%d default error\n", __FILE__, __LINE__);
             exit(-1);
         }
@@ -57,13 +63,15 @@ static int8_t get_fig_symbol(enum type_pieces *type, enum color *color) {
 };
 
 
-static void print_ChessBoard_CLI
-                        (struct square ***ChessBoard, enum color *user_side) {
-    // printf_ascii_charactrers();
-    switch (*user_side) {
-        case white: {
+static void 
+print_ChessBoard_CLI (struct square ***ChessBoard, enum color *user_side)
+{
+    switch (*user_side)
+    {
+        case white:
+        {
             printf("    A B C D E F G H\n");
-            for (uint8_t i = 0; i < 8; ++i) {
+            for (int8_t i = 0; i < 8; ++i) {
                 printf("%d | ", 8 - i);
                 for (uint8_t j = 0; j < 8; ++j) {
                     printf("%c ", get_fig_symbol(&ChessBoard[i][j]->obj.type,
@@ -76,14 +84,14 @@ static void print_ChessBoard_CLI
         }
         case black: {
             printf("    H G F E D C B A\n");
-            for (uint8_t i = 0; i < 8; ++i) {
-                printf("%d | ", i + 1);
-                for (uint8_t j = 0; j < 8; ++j) {
+            for (int8_t i = 7; i >= 0; --i) {
+                printf("%d | ", 8 - i);
+                for (int8_t j = 7; j >= 0; --j) {
                     printf("%c ", get_fig_symbol(
                                 &ChessBoard[i][j]->obj.type,
                                 &ChessBoard[i][j]->obj.side));
                 }
-                printf("| %d\n", i + 1);
+                printf("| %d\n", 8 - i);
             }
             printf("    H G F E D C B A\n");
             break;
@@ -96,7 +104,9 @@ static void print_ChessBoard_CLI
 };
 
 
-static void printf_debug(struct square ***ChessBoard) {
+static void
+printf_debug (struct square ***ChessBoard)
+{
     // printf_ascii_charactrers();
     // list
     // for (uint8_t i = 0; i < 8; ++i) {
@@ -113,41 +123,42 @@ static void printf_debug(struct square ***ChessBoard) {
     }
     printf("\n");
 
-    // for (uint8_t i = 0; i < 8; ++i) {
-    //     for (uint8_t j = 0; j < 8; ++j) {
-    //         printf("%d ", ChessBoard[i][j]->obj.side);
-    //     }
-    //     printf("\n");
-    //     }
-    // printf("\n");
+    for (uint8_t i = 0; i < 8; ++i) {
+        for (uint8_t j = 0; j < 8; ++j) {
+            printf("%d ", ChessBoard[i][j]->obj.side);
+        }
+        printf("\n");
+        }
+    printf("\n");
 
-    // for (uint8_t i = 0; i < 8; ++i) {
-    //     for (uint8_t j = 0; j < 8; ++j) {
-    //         printf("%d ", ChessBoard[i][j]->obj.type);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n");
-    //
-    // for (uint8_t i = 0; i < 8; ++i) {
-    //     for (uint8_t j = 0; j < 8; ++j) {
-    //         printf("%d ", ChessBoard[i][j]->pos);
-    //     }
-    //     printf("\n");
-    // }
+    for (uint8_t i = 0; i < 8; ++i) {
+        for (uint8_t j = 0; j < 8; ++j) {
+            printf("%d ", ChessBoard[i][j]->obj.type);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+    for (uint8_t i = 0; i < 8; ++i) {
+        for (uint8_t j = 0; j < 8; ++j) {
+            printf("%d ", ChessBoard[i][j]->pos);
+        }
+        printf("\n");
+    }
     printf("\n");
 }
 
 
-static uint8_t get_pos_value
-                        (char *symbol, char *number, enum color *user_side) {
-    return *user_side == white                                              ? 
-        (GET_STANDART_SYMBOL(*symbol) - 96) + ((57 - *number - 1) * 8)      :
-        (105 - (GET_STANDART_SYMBOL(*symbol))) + ((*number - 49) * 8);
+static uint8_t
+get_pos_value (char *symbol, char *number)
+{
+    return (GET_STANDART_SYMBOL(*symbol) - 96) + ((57 - *number - 1) * 8);
 }
 
 
-static uint8_t input_proc(char *input, char **pos) {
+static uint8_t
+input_proc (char *input, char **pos)
+{
     if (strncmp(input, "--", 2) == 0) {
         input += 2;
         if (strncmp(input, "help", 4) == 0) {
@@ -177,50 +188,63 @@ static uint8_t input_proc(char *input, char **pos) {
 }
 
 
-uint8_t CLI_run_session(struct ChessGame *global) {
+uint8_t 
+CLI_run_session (struct ChessGame *global)
+{
     uint8_t status = GAME_STATUS_SESSION_ACTIVE;
     FILE *stream = new_logging(modern_move_logging);
-    for (; status == GAME_STATUS_SESSION_ACTIVE; ) {
+
+    // print_func
+    for (;status == GAME_STATUS_SESSION_ACTIVE;)
+    {
         // printf_debug(global->ChessBoard);
         print_ChessBoard_CLI(global->ChessBoard, &global->user_side);
         char *user_input = NULL;
         size_t len = 0;
         ssize_t glread = getline(&user_input, &len, stdin);
-        if ( glread != -1 && len) {
+        if ( glread != -1 && len)
+        {
             char **pos = (char **)malloc(sizeof(char *) * 2);
             uint8_t err = input_proc(user_input, pos);
-            switch (err) {
+            switch (err)
+            {
                 case 0: break;
-                case HELP_CODE: {
+                case HELP_CODE:
+                {
                     free(user_input);
                     free(pos);
                     continue;
                 }
-                case EXIT_CODE: {
+                case EXIT_CODE:
+                {
                     free(user_input);
                     free(pos);
                     fclose(stream);
                     return 0;
                 }
-                case INCORRECT_COMMAND_CODE: {
+                case INCORRECT_COMMAND_CODE:
+                {
                     printf("Incorrect input. Check --help\n");
                     free(user_input);
                     free(pos);
                     continue;
                 }
-                case ERROR_INPUT_INCORRECT_SYMBOL: {
+                case ERROR_INPUT_INCORRECT_SYMBOL:
+                {
                     printf("Incorrect input. Check --help\n");
                     free(user_input);
                     free(pos);
                     continue;
                 }
-                case ERROR_INPUT_INCORRECT_LEN: {
+                case ERROR_INPUT_INCORRECT_LEN:
+                {
                     printf("Incorrect number of pos. Check --help\n");
                     free(user_input);
                     free(pos);
                     continue;
                 }
-                default: {
+                default:
+                {
                     perror("Specific case. Check --help\n");
                     free(user_input);
                     free(pos);
@@ -229,31 +253,26 @@ uint8_t CLI_run_session(struct ChessGame *global) {
 
             }
             if (err == HELP_CODE) continue;
-            uint8_t opos = get_pos_value(&pos[0][0], &pos[0][1],
-                    &global->user_side);
-            if (global->ChessBoard[OPOS_X][OPOS_Y]->obj.type ==
-                empty) {
+            uint8_t opos = get_pos_value(&pos[0][0], &pos[0][1]);
+            if (global->ChessBoard[OPOS_X][OPOS_Y]->obj.type == empty)
+            {
                 printf("ERROR: EMPTY SQUARE MOVED\n");
                 free(user_input); free(pos);
                 continue;
             }
-            // if (global->ChessBoard[OPOS_X][OPOS_Y]->obj.side != 
-            //                                             global->user_side) {
-            //     printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
-            //     free(user_input); free(pos);
-            //     continue;
-            // }
-            uint8_t npos = get_pos_value(&pos[1][0], &pos[1][1],
-                    &global->user_side);
-            if (!check_correct_of_movement(global, &opos, &npos)) {
+            uint8_t npos = get_pos_value(&pos[1][0], &pos[1][1]);
+            if (!check_correct_of_movement(global, &opos, &npos))
+            {
                 int8_t err = SIMPLE_new_record(stream, &opos, &npos);
-                if (err) {
+                if (err)
+                {
                     free(user_input);
                     free(pos);
                     fclose(stream);
                     return -1;
                 }
-                else  {
+                else
+                {
                     user_move(global, &opos, &npos);
                 }
             }
@@ -262,14 +281,17 @@ uint8_t CLI_run_session(struct ChessGame *global) {
 
             free(pos);
         }
-        else {
+        else
+        {
             free(user_input);
-            if (feof(stdin)) {
+            if (feof(stdin))
+            {
                 printf("Get eof, safe exit\n");
                 fclose(stream);
                 return 0;
             }
-            else {
+            else
+            {
                 perror("getline");
                 fclose(stream);
                 return ERROR_INPUT_GETLINE;
@@ -277,7 +299,6 @@ uint8_t CLI_run_session(struct ChessGame *global) {
         }
         free(user_input);
     }
-    switch (status) { }
 
     fclose(stream);
     return 0;

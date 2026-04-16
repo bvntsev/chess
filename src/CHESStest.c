@@ -8,7 +8,9 @@
 #include <stdlib.h>
 
 
-static void set_square(struct piece *oobj, enum color side, enum type_pieces type) {
+static void
+set_square (struct piece *oobj, enum color side, enum type_pieces type)
+{
     oobj->side = side;
     oobj->type = type;
     // update attacked pos in all chessboard
@@ -20,7 +22,9 @@ int8_t (*CLIuser_input_func[])(const struct ChessGame *) = {
 };
 
 
-static struct square ***set_training_field() {
+static struct square ***
+set_training_field()
+{
     char *start_pos =
             "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE";
     struct square ***ChessBoard;
@@ -48,7 +52,9 @@ static struct square ***set_training_field() {
 }
 
 
-static void free_training_field(struct square ***ChessBoard) {
+static void
+free_training_field (struct square ***ChessBoard)
+{
     for (uint8_t i = 0; i < 8; ++i) {
         for (uint8_t j = 0; j < 8; ++j)
             free(ChessBoard[i][j]);
@@ -58,7 +64,9 @@ static void free_training_field(struct square ***ChessBoard) {
 }
 
 
-int32_t test_chess_movement() {
+int32_t
+test_chess_movement ()
+{
 
     printf("==============STARTING TEST==============\n");
     for (int64_t iter = 0; iter < CLIUSER_INPUT_FUNC_LEN; ++iter) {
