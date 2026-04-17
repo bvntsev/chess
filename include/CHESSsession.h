@@ -23,23 +23,28 @@
 #define ERROR_PAWN_LEN_MORE_THEN_2              0x0d
 #define ERROR_PAWN_MOVE_2_NOT_IN_START          0x0e
 #define ERROR_PAWN_MEET_BARRIER                 0x0f
+#define ERROR_PAWN_ILLEGAL_DIAGONAL_ATTACK      0x10
+#define ERROR_PAWN_ILLEGAL_DIRECTION            0x11
+#define ERROR_PAWN_ATTACK_EMPTY_SQUARE          0x12
 
-#define ERROR_KNIGHT_INCORRECT_MOVE             0x10
+#define ERROR_KNIGHT_INCORRECT_MOVE             0x13
 
-#define ERROR_ROOK_INCORRECT_MOVE               0x11
+#define ERROR_ROOK_INCORRECT_MOVE               0x14
 
-#define ERROR_BETWEEN_OPOS_NPOS_PIECES          0x12
+#define ERROR_BETWEEN_OPOS_NPOS_PIECES          0x15
 
-#define ERROR_KING_MOVE_TO_ATTACKED_SQUARE      0x13
-#define ERROR_KING_LEN_MORE_THEN_1              0x14
+#define ERROR_KING_MOVE_TO_ATTACKED_SQUARE      0x16
+#define ERROR_KING_LEN_MORE_THEN_1              0x17
 
-#define ERROR_BISHOP_INCORRECT_MOVE             0x15
-#define ERROR_BISHOP_MOVE_THROUGHOUT_A_PIECE    0x16
+#define ERROR_BISHOP_INCORRECT_MOVE             0x18
+#define ERROR_BISHOP_MOVE_THROUGHOUT_A_PIECE    0x19
 
-#define ERROR_QUEEN_MOVE_THROUGHOUT_A_PIECE     0x17
-#define ERROR_QUEEN_INCORRECT_MOVE              0x18
+#define ERROR_QUEEN_MOVE_THROUGHOUT_A_PIECE     0x1a
+#define ERROR_QUEEN_INCORRECT_MOVE              0x1b
 
-#define ERROR_FOREIGN_PIECES                    0x19
+#define ERROR_FOREIGN_PIECES                    0x1c
+
+
 #define OPOS_X  (opos - 1)  / 8
 #define OPOS_Y  (opos - 1)  % 8
 #define OPOS_XP (*opos - 1) / 8
