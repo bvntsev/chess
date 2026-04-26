@@ -7,6 +7,8 @@ OBJS := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(SRCS))
 
 all: clean $(BIN) run
 
+all_clear: clean $(BIN) clear run
+
 $(BIN): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
@@ -35,4 +37,7 @@ valgrind:
 rm_log_files:
 	rm -f ~/.local/share/bvchess/*.log
 
-.PHONY: all clean run debug debug_all valgrind valgrind_all
+clear:
+	clear
+
+.PHONY: all clean run debug debug_all valgrind valgrind_all clear

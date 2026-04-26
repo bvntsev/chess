@@ -166,17 +166,26 @@ input_proc (char *input, char **pos)
     if (strncmp(input, "--", 2) == 0) {
         input += 2;
         if (strncmp(input, "help", 4) == 0) {
-            printf(
-            "--help\t\tget this help message\n--exit\t\tdon't save and exit\n"
+          printf(
+              "--help\t\tget this help message\n--exit\t\tdon't save and exit\n\
+--reload\tto reload game\n--clear\t\tclear old boards\n\n"
                     );
             return HELP_CODE;
         }
-        if(strncmp(input, "exit", 4) == 0) {
+        else if(strncmp(input, "exit", 4) == 0) {
             return EXIT_CODE;
         }
-        if(strncmp(input, "reload", 6) == 0) {
-            return RELOAD_CODE;
-        }
+        else if (strncmp(input, "reload", 6) == 0) {
+          printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+          printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	  return RELOAD_CODE;
+        } else if (strncmp(input, "clear", 5) == 0) {
+	  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+          printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+          printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	  return CLEAR_CODE;
+	}
         return INVALID_OPTION;
     }
     else {
@@ -205,7 +214,7 @@ CLI_run_session_pvp (struct ChessGame *global)
     for (;status == GAME_STATUS_SESSION_ACTIVE;)
     {
         print_board(global->ChessBoard, &global->user_side);
-        printf_debug(global->ChessBoard);
+        /* printf_debug(global->ChessBoard); */
         char *user_input = NULL;
         size_t len = 0;
         ssize_t glread = getline(&user_input, &len, stdin);
@@ -235,6 +244,12 @@ CLI_run_session_pvp (struct ChessGame *global)
                     free(pos);
                     fclose(stream);
                     return RELOAD_CODE;
+                }
+                case CLEAR_CODE: {
+                  printf("========CLEARED========\n");
+		  free(user_input);
+                  free(pos);
+		  continue;
                 }
                 case INVALID_OPTION:
                 {
@@ -275,14 +290,14 @@ CLI_run_session_pvp (struct ChessGame *global)
                 free(user_input); free(pos);
                 continue;
             }
-            // if (global->ChessBoard[OPOS_X][OPOS_Y]->obj.side
-            //         != global->user_side)
-            // {
-            //     printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
-            //     free(user_input); free(pos);
-            //     continue;
-            // }
-            // new pos
+            if (global->ChessBoard[OPOS_X][OPOS_Y]->obj.side
+                    != global->user_side)
+            {
+                printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
+                free(user_input); free(pos);
+                continue;
+            }
+            /* new pos */
             uint8_t npos = get_pos_value(&pos[1][0], &pos[1][1]);
             if (!check_correct_of_movement(global, &opos, &npos))
             {
@@ -299,8 +314,8 @@ CLI_run_session_pvp (struct ChessGame *global)
                     user_move(global, &opos, &npos);
                     last_move[0] = opos;
                     last_move[1] = npos;
-                    // global->user_side
-                    //     = (global->user_side == white ? black : white);
+                    global->user_side
+                        = (global->user_side == white ? black : white);
                 }
             }
             else

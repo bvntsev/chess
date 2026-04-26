@@ -156,10 +156,7 @@ pawn_opos_update (struct square ***ChessBoard, uint8_t *opos);
 uint8_t
 bishop_opos_update (struct square ***ChessBoard, uint8_t *opos);
 uint8_t
-knight_opos_update (struct square ***ChessBoard, uint8_t *opos)
-{
-    
-}
+knight_opos_update (struct square ***ChessBoard, uint8_t *opos);
 uint8_t
 rook_opos_update (struct square ***ChessBoard, uint8_t *opos);
 uint8_t

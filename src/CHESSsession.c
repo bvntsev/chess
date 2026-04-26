@@ -430,10 +430,10 @@ opos_update (struct square ***ChessBoard, uint8_t *opos)
     struct piece *non_empty;
     uint8_t edge;
     enum attack_t type;
+/* square_state_upd(); */
     edge = ((*opos / 8) + 1) * 8;
     non_empty = check_between_direct_line(ChessBoard, opos, &edge); 
-    // if (non_empty && (non_empty->type == queen || non_empty->type == rook))
-    //     ChessBoard
+    /* if (non_empty && (non_empty->type == queen || non_empty->type == rook)) */
 }
 
 
@@ -458,18 +458,18 @@ npos_update (struct square ***ChessBoard, struct piece *obj, uint8_t *npos)
 
 
 void
-user_move (struct ChessGame *global, uint8_t *opos, uint8_t *npos)
+user_move(struct ChessGame *global, uint8_t *opos, uint8_t *npos)
 {
+    opos_update(global->ChessBoard, opos);
+    global->ChessBoard[OPOS_XP][OPOS_YP]->obj.type = empty;
+    global->ChessBoard[OPOS_XP][OPOS_YP]->obj.side = none;
+    
     npos_update(global->ChessBoard,
             &global->ChessBoard[OPOS_XP][OPOS_YP]->obj, npos);
     global->ChessBoard[NPOS_XP][NPOS_YP]->obj.type =
         global->ChessBoard[OPOS_XP][OPOS_YP]->obj.type;
     global->ChessBoard[NPOS_XP][NPOS_YP]->obj.side =
         global->ChessBoard[OPOS_XP][OPOS_YP]->obj.side;
-
-    opos_update(global->ChessBoard, opos);
-    global->ChessBoard[OPOS_XP][OPOS_YP]->obj.type = empty;
-    global->ChessBoard[OPOS_XP][OPOS_YP]->obj.side = none;
 }
 
 

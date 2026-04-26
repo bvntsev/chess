@@ -1,8 +1,8 @@
 # TODO
 ~~## FIX many problems~~  
-## Fix bug with incorrect seeing move  
+~~## Fix bug with incorrect seeing move~~  
 ## Write user-session features  
-### Infinity loop  
+~~### Infinity loop~~  
 ### Reading user move and change the board  
 #### Check correct of move  
 ## Bot player  

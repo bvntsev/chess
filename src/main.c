@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "../include/CHESSutil.h"
@@ -41,13 +42,13 @@ main (void)
             case EXIT_CODE:
                 break;
             case RELOAD_CODE:
-                printf("====================RELOADED===================\n");
+                printf("========RELOADED=======\n");
                 new_debug_record("reloaded cli game");
                 continue;
             default:
             {
-                close_debug_stream();
-                return -1;
+              close_debug_stream();
+              return -1;
             }
         }
         close_debug_stream();
