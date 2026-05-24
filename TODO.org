@@ -1,0 +1,43 @@
+* TODO
+** Realize attack
+*** Piece attack the new squares
+**** DONE Pawn
+**** DONE Knight
+**** TODO Bishop
+**** TODO Rook
+**** TODO Queen
+**** TODO King
+*** Clear old attack
+**** DONE Pawn
+5/24/26
+**** DONE Knight
+5/24/26
+**** TODO Bishop
+**** TODO Rook
+**** TODO Queen
+**** TODO King
+*** Need to add check of beating pieces
+**** DONE If a piece died then clear her attacking squaresa
+DONE 5/24/26
+*** Need to add check of hidden attack 
+** TODO Rewrite ALL code for make new readable naming
+[] Change OPOS_XP NPOS_YP and etc. to new naming. It's really unreadable
+[] Describe new added naming for primitive documentation
+** DONE FIX many problems
+** DONE Fix bug with incorrect seeing move
+** TODO Write user-session features
+*** DONE CLI Infinity loop
+*** TODO Reading user move and change the board
+**** TODO Check correct of move
+** TODO Bot player  
+*** TODO Get some info about chess bots/alghoritms and choose the best option
+Maybe it'd machine learning or something looks like AI  
+At first choose bots/alghoritm
+* notes
+Проверка для opos клетки на наличие диагональных/горизонтальных/вертикальных
+фигур любой команды, если такие есть, то обновляется их линия на атаку.
+Тоже самое нужно сделать и для npos, ибо тогда будет утечка атакованный клеток
+!!! Частный случай. Если конь передвигается на вертикаль ладьи, то нужно
+очистить клетки за конём и добавить новую атаку перед конём, иначе утечка
+атаки.
+Когда бьешь фигуру нужно удалять клетки, которая она до этого била

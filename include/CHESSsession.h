@@ -50,17 +50,15 @@
 #define OPOS_XP (*opos - 1) / 8
 #define OPOS_YP (*opos - 1) % 8
 
-
 #define NPOS_X  (npos - 1)  / 8
 #define NPOS_Y  (npos - 1)  % 8
 #define NPOS_XP (*npos - 1) / 8
 #define NPOS_YP (*npos - 1) % 8
 
-struct ChessGame;
-void user_move(
-        struct ChessGame *global, unsigned char *opos, unsigned char *npos
-        );
+struct chess;
+void
+user_move (struct chess *global, unsigned char *opos, unsigned char *npos);
 
-int32_t check_correct_of_movement(
-    struct ChessGame *global, uint8_t *opos, uint8_t *npos);
+int32_t
+check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos);
 #endif

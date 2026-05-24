@@ -10,7 +10,7 @@
 #include "../include/CHESSutil.h"
 
 
-extern enum color *user_side;
+extern enum color_t *user_side;
 
 
 FILE *
@@ -140,7 +140,7 @@ new_debug_record (char *fmt, ...)
     {
         int32_t size = 0;
         va_list ap;
-        char *line;
+        char *line = NULL;
         va_start(ap, fmt);
         size = vsnprintf(line, size, fmt, ap);
         va_end(ap);

@@ -5,17 +5,11 @@
 
 #define PRINT_DASH printf("==============================================\n");
 
-enum color 
+enum color_t
 { none = 0, black = 1, white = 2 };
 
-enum type_pieces
+enum piece_t
 { empty = 5, pawn = 0, knight = 6, bishop = 2, rook = 4, king = 1, queen = 3 };
-
-struct piece
-{
-  enum color        side;
-  enum type_pieces  type;
-};
 
 enum attack_t
 {
@@ -31,21 +25,27 @@ enum action_t
     leaving
 };
 
+struct piece
+{
+  enum color_t side;
+  enum piece_t type;
+};
+
 struct square
 {
-  enum color        side;
+  enum color_t      side;
   enum attack_t     attacked;
   int8_t            pos;
   struct piece      obj;
 };
 
-struct ChessGame
+struct chess
 {
-  enum color        user_side;
-  struct square ***ChessBoard;
+  enum color_t user_side;
+  struct square ***board;
 };
 
-struct square **
-*create_ChessBoard(struct square ***ChessBoard, enum color *user_side);
+struct square ***
+create_board(struct square ***board);
 
 #endif // CHESSUTIL_H

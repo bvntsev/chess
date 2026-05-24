@@ -1,7 +1,7 @@
-#include "../include/CHESSsession.h"
+// #include "../include/CHESSsession.h"
 #include "../include/CHESStest.h"
 #include "../include/CHESSutil.h"
-#include "../include/CHESScli.h"
+// #include "../include/CHESScli.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -9,7 +9,7 @@
 
 
 static void
-set_square (struct piece *oobj, enum color side, enum type_pieces type)
+set_square (struct piece *oobj, enum color_t side, enum piece_t type)
 {
     oobj->side = side;
     oobj->type = type;
@@ -17,7 +17,7 @@ set_square (struct piece *oobj, enum color side, enum type_pieces type)
 }
 
 
-int8_t (*CLIuser_input_func[])(const struct ChessGame *) = {
+int8_t (*CLIuser_input_func[])(const struct chess *) = {
     NULL
 };
 

@@ -4,51 +4,35 @@
 #include "../include/CHESSutil.h"
 
 uint8_t
-pawn_npos_update    (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
+pawn_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				enum attack_t (*upd_func)(enum color_t *, enum attack_t));
 uint8_t
-bishop_npos_update  (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
+bishop_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				  enum attack_t (*upd_func)(enum color_t *, enum attack_t));
 uint8_t
-knight_npos_update  (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
+knight_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				  enum attack_t (*upd_func)(enum color_t *, enum attack_t));
 uint8_t
-rook_npos_update    (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
+rook_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				enum attack_t (*upd_func)(enum color_t *, enum attack_t));
 uint8_t
-queen_npos_update   (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
+queen_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				 enum attack_t (*upd_func)(enum color_t *, enum attack_t));
 uint8_t
-king_npos_update    (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
-
-
-uint8_t
-pawn_opos_update    (struct square ***ChessBoard, uint8_t *opos);
-uint8_t
-bishop_opos_update  (struct square ***ChessBoard, uint8_t *opos);
-uint8_t
-knight_opos_update  (struct square ***ChessBoard, uint8_t *opos);
-uint8_t
-rook_opos_update    (struct square ***ChessBoard, uint8_t *opos);
-uint8_t
-queen_opos_update   (struct square ***ChessBoard, uint8_t *opos);
-uint8_t
-king_opos_update    (struct square ***ChessBoard, uint8_t *opos);
-
+king_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				enum attack_t (*upd_func)(enum color_t *, enum attack_t));
 
 enum attack_t
-square_state_upd (enum color color, enum attack_t type);
+square_state_upd_by_attacking (enum color_t *color, enum attack_t type);
+enum attack_t
+square_state_upd_by_leaving (enum color_t *color, enum attack_t type);
 
-#define OPOS_X  (opos - 1)  / 8
-#define OPOS_Y  (opos - 1)  % 8
-#define OPOS_XP (*opos - 1) / 8
-#define OPOS_YP (*opos - 1) % 8
+#define POS_X  (pos - 1)  / 8
+#define POS_Y  (pos - 1)  % 8
+#define POS_XP (*pos - 1) / 8
+#define POS_YP (*pos - 1) % 8
 
-
-#define NPOS_X  (npos - 1)  / 8
-#define NPOS_Y  (npos - 1)  % 8
-#define NPOS_XP (*npos - 1) / 8
-#define NPOS_YP (*npos - 1) % 8
+#define SQ_UPD_ATTCK square_state_upd_by_attacking
+#define SQ_UPD_LEAVE square_state_upd_by_leaving
 
 #endif // CHESSPIECES

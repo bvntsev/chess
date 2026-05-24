@@ -1,43 +1,67 @@
+#!/usr/bin/make -f
 # === config ===
-include config.mk
 
-# get source files
-SRCS := $(wildcard $(SRC_DIR)/*.c)
-OBJS := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(SRCS))
+CC = gcc
+srcdir = ./src
+includedir = ./include
+builddir = build
+DEFS =
 
-all: clean $(BIN) run
+CDEBUG = -g -Wall -Wextra -O3
+CFLAGS = $(CDEBUG) -I$(includedir) -I$(srcdir) $(DEFS)
+LDFLAGS = -g
 
-all_clear: clean $(BIN) clear run
+OBJS = \
+	$(builddir)/CHESScli.o \
+	$(builddir)/CHESSgui.o \
+	$(builddir)/CHESSlogging.o \
+	$(builddir)/CHESSpieces.o \
+	$(builddir)/CHESSsession.o \
+	$(builddir)/CHESStest.o \
+	$(builddir)/CHESSutil.o \
+	$(builddir)/main.o
 
-$(BIN): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+OBJSDIR = $(addprefix $(builddir)/,$(OBJS))
 
-$(BIN_DIR)/%.o: $(SRC_DIR)/%.c | $(BIN_DIR)
+all: $(builddir) $(OBJS)
+	$(CC) $(LDFLAGS) -o $(builddir)/chess $(OBJS)
+
+$(builddir):
+	mkdir -p $(builddir)
+
+$(builddir)/%.o: $(srcdir)/%.c | $(builddir)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+.PHONY : 	clean run debug debug_all valgrind valgrind_all \
+		rm_lof_files konsole konsole_all clear debug_all_konsole
 
 clean:
-	rm -rf $(BUILD_DIR) $(BIN)
+	rm -f $(builddir)/*
 
 run:
-	./$(BIN)
+	./build/chess
 
-debug_all: clean $(BIN) debug
+debug_all: clean all debug
 
 debug:
-	gdb $(BIN)
+	gdb ./build/chess
 
-valgrind_all: clean $(BIN) valgrind
+debug_all_konsole: clean all
+	konsole -e gdb ./build/chess
+
+valgrind_all: clean all valgrind
 
 valgrind:
-	valgrind $(BIN)
+	valgrind ./build/chess
 
 rm_log_files:
 	rm -f ~/.local/share/bvchess/*.log
 
+konsole:
+	konsole -e ./build/chess
+
+konsole_all: all
+	konsole -e ./build/chess
+
 clear:
 	clear
-
-.PHONY: all clean run debug debug_all valgrind valgrind_all clear

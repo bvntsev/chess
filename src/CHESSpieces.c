@@ -6,160 +6,204 @@
 
 
 enum attack_t
-square_state_upd (enum color color, enum attack_t type)
+square_state_upd_by_attacking (enum color_t *color, enum attack_t type)
 {
-    switch (type)
+  switch (type)
     {
-        case safe_square:
-            return color == white ? by_white      : by_black;
-        case by_black:
-            return color == white ? both_attacked : by_black;
-        case by_white:
-            return color == black ? both_attacked : by_white;
-        case both_attacked:
-            return both_attacked;
+    case safe_square:
+      return *color == white ? by_white      : by_black;
+    case by_black:
+      return *color == white ? both_attacked : by_black;
+    case by_white:
+      return *color == black ? both_attacked : by_white;
+    case both_attacked:
+      return both_attacked;
     }
+  fprintf(stderr, "Error: unexpected square_state_uba finish");
+  exit(-1);
+}
+
+
+enum attack_t
+square_state_upd_by_leaving (enum color_t *color, enum attack_t type)
+{
+  switch (type)
+    {
+    case safe_square:
+		return safe_square;
+    case by_black:
+      printf("by_black\n");
+fflush(stdout);      
+		return *color == white ? by_black : safe_square;
+    case by_white:
+      printf("by_white\n");
+      fflush(stdout);      
+		return *color == black ? by_white : safe_square;
+    case both_attacked:
+      printf("both\n");
+      fflush(stdout);      
+		return *color == white ? by_black : by_white;
+    }
+  fprintf(stderr, "Error: unexpected square_state_ubl finish");
+  exit(-1);
 }
 
 
 uint8_t
-knight_npos_update (struct square ***ChessBoard, struct piece *obj,
-                    uint8_t *npos)
+knight_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				  enum attack_t (*upd_func)(enum color_t *, enum attack_t))
 {
-    if (NPOS_XP > 1)
+  if (POS_XP > 1)
     {
-        if (NPOS_YP == 0)
+      if (POS_YP == 0)
         {
-            ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked = 
-            square_state_upd(obj->side, 
-                    ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked);
+	  board[POS_XP - 2][POS_YP + 1]->attacked = 
+            upd_func(side, 
+			     board[POS_XP - 2][POS_YP + 1]->attacked);
         }
-        else if (NPOS_YP == 7)
+      else if (POS_YP == 7)
         {
-            ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked);
+	  board[POS_XP - 2][POS_YP - 1]->attacked = 
+            upd_func(side,
+			     board[POS_XP - 2][POS_YP - 1]->attacked);
         }
-        else
+      else
         {
-            ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP - 2][NPOS_YP - 1]->attacked);
+	  board[POS_XP - 2][POS_YP - 1]->attacked = 
+            upd_func(side,
+			     board[POS_XP - 2][POS_YP - 1]->attacked);
 
-            ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP - 2][NPOS_YP + 1]->attacked);
+	  board[POS_XP - 2][POS_YP + 1]->attacked = 
+            upd_func(side,
+			     board[POS_XP - 2][POS_YP + 1]->attacked);
         }
     }
-    if (NPOS_XP < 6)
+  if (POS_XP < 6)
     {
-        if (NPOS_YP == 0)
+      if (POS_YP == 0)
         {
-            ChessBoard[NPOS_XP + 2][NPOS_YP + 1]->attacked = 
-            square_state_upd(obj->side, 
-                    ChessBoard[NPOS_XP + 2][NPOS_YP + 1]->attacked);
+	  board[POS_XP + 2][POS_YP + 1]->attacked = 
+            upd_func(side, 
+			     board[POS_XP + 2][POS_YP + 1]->attacked);
         }
 
-        else if (NPOS_YP == 7)
+      else if (POS_YP == 7)
         {
-            ChessBoard[NPOS_XP + 2][NPOS_YP - 1]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP + 2][NPOS_YP - 1]->attacked);
+	  board[POS_XP + 2][POS_YP - 1]->attacked = 
+            upd_func(side,
+			     board[POS_XP + 2][POS_YP - 1]->attacked);
         }
-        else
+      else
         {
-            ChessBoard[NPOS_XP + 2][NPOS_YP - 1]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP + 2][NPOS_YP - 1]->attacked);
+	  board[POS_XP + 2][POS_YP - 1]->attacked = 
+            upd_func(side,
+			     board[POS_XP + 2][POS_YP - 1]->attacked);
 
-            ChessBoard[NPOS_XP + 2][NPOS_YP + 1]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP + 2][NPOS_YP + 1]->attacked);
+	  board[POS_XP + 2][POS_YP + 1]->attacked = 
+            upd_func(side,
+			     board[POS_XP + 2][POS_YP + 1]->attacked);
         }
     }
-    if (NPOS_YP > 1)
+  if (POS_YP > 1)
     {
-        if (NPOS_XP == 0)
+      if (POS_XP == 0)
         {
-            ChessBoard[NPOS_XP + 1][NPOS_YP - 2]->attacked = 
-            square_state_upd(obj->side, 
-                    ChessBoard[NPOS_XP + 1][NPOS_YP - 2]->attacked);
+	  board[POS_XP + 1][POS_YP - 2]->attacked = 
+            upd_func(side, 
+			     board[POS_XP + 1][POS_YP - 2]->attacked);
         }
-        else if (NPOS_XP == 7)
+      else if (POS_XP == 7)
         {
-            ChessBoard[NPOS_XP - 1][NPOS_YP - 2]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP - 1][NPOS_YP - 2]->attacked);
+	  board[POS_XP - 1][POS_YP - 2]->attacked = 
+            upd_func(side,
+			     board[POS_XP - 1][POS_YP - 2]->attacked);
         }
-        else
+      else
         {
-            ChessBoard[NPOS_XP + 1][NPOS_YP - 2]->attacked = 
-            square_state_upd(obj->side, 
-                    ChessBoard[NPOS_XP + 1][NPOS_YP - 2]->attacked);
+	  board[POS_XP + 1][POS_YP - 2]->attacked = 
+            upd_func(side, 
+			     board[POS_XP + 1][POS_YP - 2]->attacked);
 
-            ChessBoard[NPOS_XP - 1][NPOS_YP - 2]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP - 1][NPOS_YP - 2]->attacked);
+	  board[POS_XP - 1][POS_YP - 2]->attacked = 
+            upd_func(side,
+			     board[POS_XP - 1][POS_YP - 2]->attacked);
         }
     }
-    if (NPOS_YP < 6)
+  if (POS_YP < 6)
     {
-        if (NPOS_XP == 0)
+      if (POS_XP == 0)
         {
-            ChessBoard[NPOS_XP + 1][NPOS_YP + 2]->attacked = 
-            square_state_upd(obj->side, 
-                    ChessBoard[NPOS_XP + 1][NPOS_YP + 2]->attacked);
+	  board[POS_XP + 1][POS_YP + 2]->attacked = 
+            upd_func(side, 
+			     board[POS_XP + 1][POS_YP + 2]->attacked);
         }
-        else if (NPOS_XP == 7)
+      else if (POS_XP == 7)
         {
-            ChessBoard[NPOS_XP - 1][NPOS_YP + 2]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP - 1][NPOS_YP + 2]->attacked);
+	  board[POS_XP - 1][POS_YP + 2]->attacked = 
+            upd_func(side,
+			     board[POS_XP - 1][POS_YP + 2]->attacked);
         }
-        else
+      else
         {
-            ChessBoard[NPOS_XP + 1][NPOS_YP + 2]->attacked = 
-            square_state_upd(obj->side, 
-                    ChessBoard[NPOS_XP + 1][NPOS_YP + 2]->attacked);
+	  board[POS_XP + 1][POS_YP + 2]->attacked = 
+            upd_func(side, 
+			     board[POS_XP + 1][POS_YP + 2]->attacked);
 
-            ChessBoard[NPOS_XP - 1][NPOS_YP + 2]->attacked = 
-            square_state_upd(obj->side,
-                    ChessBoard[NPOS_XP - 1][NPOS_YP + 2]->attacked);
+	  board[POS_XP - 1][POS_YP + 2]->attacked = 
+            upd_func(side,
+			     board[POS_XP - 1][POS_YP + 2]->attacked);
         }
-    }
-    return 0;
+    } 
+  return 0;
 }
 
 
 uint8_t
-pawn_npos_update    (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
-uint8_t
-bishop_npos_update  (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
-uint8_t
-knight_npos_update  (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
-uint8_t
-rook_npos_update    (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
-uint8_t
-queen_npos_update   (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
-uint8_t
-king_npos_update    (struct square ***ChessBoard,
-                    struct piece *obj, uint8_t *npos);
+pawn_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				enum attack_t (*upd_func)(enum color_t *, enum attack_t))
+{
+#define PAWN_XLEVEL POS_XP + (*side == black) - (*side == white)
+	if (POS_YP == 0) {
+		board[PAWN_XLEVEL][POS_YP + 1]->attacked =
+			upd_func(
+				side,
+				board[PAWN_XLEVEL][POS_YP + 1]->attacked);
+	}                  
+	else if (POS_YP == 7) {
+		board[PAWN_XLEVEL][POS_YP - 1]->attacked =
+			upd_func(
+				side,
+				board[PAWN_XLEVEL][POS_YP - 1]->attacked);
+	} else {
+		board[PAWN_XLEVEL][POS_YP + 1]->attacked =
+			upd_func(
+				side,
+				board[PAWN_XLEVEL][POS_YP + 1]->attacked);
+		board[PAWN_XLEVEL][POS_YP - 1]->attacked =
+			upd_func(
+				side,
+				board[PAWN_XLEVEL][POS_YP - 1]->attacked);
+	}
+	return 0;
+  #undef PAWN_XLEVEL
+}
 
 
 uint8_t
-pawn_opos_update (struct square ***ChessBoard, uint8_t *opos);
+bishop_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				  enum attack_t (*upd_func)(enum color_t *, enum attack_t));
+
+
 uint8_t
-bishop_opos_update (struct square ***ChessBoard, uint8_t *opos);
+rook_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				enum attack_t (*upd_func)(enum color_t *, enum attack_t));
+
+
 uint8_t
-knight_opos_update (struct square ***ChessBoard, uint8_t *opos);
+queen_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				 enum attack_t (*upd_func)(enum color_t *, enum attack_t));
+
+
 uint8_t
-rook_opos_update (struct square ***ChessBoard, uint8_t *opos);
-uint8_t
-queen_opos_update (struct square ***ChessBoard, uint8_t *opos);
-uint8_t
-king_opos_update (struct square ***ChessBoard, uint8_t *opos);
+king_pos_update(struct square ***board, enum color_t *side, uint8_t *pos,
+				enum attack_t (*upd_func)(enum color_t *, enum attack_t));
