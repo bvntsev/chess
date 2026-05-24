@@ -43,7 +43,10 @@
 #define ERROR_QUEEN_INCORRECT_MOVE              0x1b
 
 #define ERROR_FOREIGN_PIECES                    0x1c
+#define ERROR_INCORRECT_PAWN_TRANSFORMATION     0x1d
 
+#define RULE_TURN_ORDER 1
+#define RULE_NON_EMPTY_PIECE_MOVED 1
 
 #define OPOS_X  (opos - 1)  / 8
 #define OPOS_Y  (opos - 1)  % 8
@@ -56,7 +59,8 @@
 #define NPOS_YP (*npos - 1) % 8
 
 struct chess;
-void
+
+uint8_t
 user_move (struct chess *global, unsigned char *opos, unsigned char *npos);
 
 int32_t

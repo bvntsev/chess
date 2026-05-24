@@ -1,12 +1,12 @@
 * TODO
-** Realize attack
+** Attack
 *** Piece attack the new squares
 **** DONE Pawn
 **** DONE Knight
 **** TODO Bishop
 **** TODO Rook
 **** TODO Queen
-**** TODO King
+**** DONE King
 *** Clear old attack
 **** DONE Pawn
 5/24/26
@@ -15,9 +15,10 @@
 **** TODO Bishop
 **** TODO Rook
 **** TODO Queen
-**** TODO King
+DONE King
+2026-05-30
 *** Need to add check of beating pieces
-**** DONE If a piece died then clear her attacking squaresa
+**** DONE If a piece died then clear her attacking squares
 DONE 5/24/26
 *** Need to add check of hidden attack 
 ** TODO Rewrite ALL code for make new readable naming
@@ -33,6 +34,9 @@ DONE 5/24/26
 *** TODO Get some info about chess bots/alghoritms and choose the best option
 Maybe it'd machine learning or something looks like AI  
 At first choose bots/alghoritm
+** DONE Pawn transformation to other type of a piece
+* BUGS
+** 
 * notes
 Проверка для opos клетки на наличие диагональных/горизонтальных/вертикальных
 фигур любой команды, если такие есть, то обновляется их линия на атаку.

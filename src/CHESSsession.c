@@ -8,8 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// last_move = {opos, npos}
+
 extern uint8_t last_move[2];
+enum piece_t pawn_transformation = empty;
 
 
 static uint8_t find_figure(struct square ***ChessBoard, enum color_t pcolor,
@@ -254,7 +255,7 @@ check_pawn_move (struct square ***board, uint8_t *opos, uint8_t *npos)
 					== 2)
 					if (NPOS_YP == ((last_move[1] - 1) % 8)) {
 						pawn_pos_update(board, &board[(last_move[1] - 1) / 8][(last_move[1] - 1) % 8]
-							->obj.side, &last_move[1], SQ_UPD_LEAVE);
+										->obj.side, &last_move[1], SQ_UPD_LEAVE);
 						board[(last_move[1] - 1) / 8][(last_move[1] - 1) % 8]
 							->obj.type = empty;
 						board[(last_move[1] - 1) / 8][(last_move[1] - 1) % 8]
@@ -443,7 +444,7 @@ check_king_move (struct square ***ChessBoard, uint8_t *opos, uint8_t *npos)
 // TODO: Need to make a best efficient system for checking square on attacking
 // by pieces on the board (need to add check every square on attacked which
 // have been attack by move figure)
-static uint8_t opos_update(struct square ***board, uint8_t *opos) {
+static uint8_t clean_the_piece_attack(struct square ***board, uint8_t *pos) {
 	/* At first need to check lines on queen/rock/bishop availabe */
   
     /* struct piece *non_empty; */
@@ -453,76 +454,78 @@ static uint8_t opos_update(struct square ***board, uint8_t *opos) {
     /* edge = ((*opos / 8) + 1) * 8; */
     /* non_empty = check_between_direct_line(board, opos, &edge); */
     
-	switch (board[OPOS_XP][OPOS_YP]->obj.type) {
+	switch (board[POS_XP][POS_YP]->obj.type) {
 	case pawn: {
-          return pawn_pos_update(board, &board[OPOS_XP][OPOS_YP]->obj.side,
-                                 opos, SQ_UPD_LEAVE);
+          return pawn_pos_update(board, &board[POS_XP][POS_YP]->obj.side,
+                                 pos, SQ_UPD_LEAVE);
 	}
 	case knight: {
-          return knight_pos_update(board, &board[OPOS_XP][OPOS_YP]->obj.side,
-								   opos, SQ_UPD_LEAVE);
+          return knight_pos_update(board, &board[POS_XP][POS_YP]->obj.side,
+								   pos, SQ_UPD_LEAVE);
 	}
-	case king: {}
+	case king: {
+		return king_pos_update(board, &board[POS_XP][POS_YP]->obj.side,
+							   pos, SQ_UPD_LEAVE);
+	}
 	case queen: {}
 	case rook: {}
 	case bishop: {break;}
 	case empty: { return 1; }
-	}    
-    /* if (non_empty && (non_empty->type == queen || non_empty->type == rook)) */
+	}
+        /* if (non_empty && (non_empty->type == queen || non_empty->type ==
+         * rook)) */
+	return 1;
 }
 
 
 // TODO: end this function using kngiht_npos_update as example
 static uint8_t
-npos_update (struct square ***board, struct piece *obj, uint8_t *npos)
+npos_update (struct square ***board, enum color_t side, enum piece_t type, uint8_t *npos)
 {
-    switch (obj->type)
-    {
-	case pawn:
-	{
-		return pawn_pos_update(board, &obj->side, npos, SQ_UPD_ATTCK);
-	}
-        case knight:
-          return knight_pos_update(board, &obj->side, npos, SQ_UPD_ATTCK);
-	case king: {}
+    switch (type) {
+    case pawn:
+		return pawn_pos_update(board, &side, npos, SQ_UPD_ATTCK);
+	case knight:
+		return knight_pos_update(board, &side, npos, SQ_UPD_ATTCK);
+	case king:
+		return king_pos_update(board, &side, npos, SQ_UPD_ATTCK);
 	case queen: {}
 	case rook: {}
-	case bishop: {break;}
-	case empty: { return ERROR_INPUT_ABSENT_PIECES; }
+	case bishop: {}
     }
+	return ERROR_INPUT_ABSENT_PIECES;
 }
 
 
-/* static uint8_t */
-/* clean_the_piece_attack(struct square ***board, uint8_t *pos) { */
-/*   switch (board[POS_XP][POS_YP]->obj.type) { */
-/*   case pawn: */
-/* 	  pawn_pos_update(board, &board[POS_XP][POS_YP]->obj.side, pos, SQ_UPD_LEAVE); */
-/*   } */
+uint8_t user_move(struct chess *global, uint8_t *opos, uint8_t *npos) {
+	/* Firstly If new pos was taken by someone else than clean enemy attacked
+	   squares. Than I update by new figure this square ( just update new pos and
+	   update each squares on new attacking by this a figure. Than I update old
+	   square. Delete old attacked squares and update for hidden attack squares.
+	   Like 2 rocks in horizontal and one change his position in on vertical. So
+	   attack in square doesn't change */
+	if (global->board[NPOS_XP][NPOS_YP]->obj.type != empty)
+		clean_the_piece_attack(global->board, npos); /* clean the enemy attack */
+	
+	clean_the_piece_attack(global->board, opos);
+	if (pawn_transformation != empty) {
+		npos_update(global->board, global->board[OPOS_XP][OPOS_YP]->obj.side,
+					pawn_transformation, npos);
+		global->board[NPOS_XP][NPOS_YP]->obj.type = pawn_transformation;
+		pawn_transformation = empty;          
+	} else {
+		npos_update(global->board, global->board[OPOS_XP][OPOS_YP]->obj.side,
+					global->board[OPOS_XP][OPOS_YP]->obj.type, npos);
+		global->board[NPOS_XP][NPOS_YP]->obj.type =
+			global->board[OPOS_XP][OPOS_YP]->obj.type;
   
-/* } */
+	}
+	global->board[NPOS_XP][NPOS_YP]->obj.side =
+		global->board[OPOS_XP][OPOS_YP]->obj.side;
+	/*  */
 
-
-void user_move(struct chess *global, uint8_t *opos, uint8_t *npos) {
-  /* Firstly If new pos was taken by someone else than clean enemy attacked
-     squares. Than I update by new figure this square ( just update new pos and
-     update each squares on new attacking by this a figure. Than I update old
-     square. Delete old attacked squares and update for hidden attack squares.
-     Like 2 rocks in horizontal and one change his position in on vertical. So
-     attack in square doesn't change */
-  if (global->board[NPOS_XP][NPOS_YP]->obj.type != empty)
-	  opos_update(global->board, npos);
-  
-	npos_update(global->board,
-				&global->board[OPOS_XP][OPOS_YP]->obj, npos);
-    global->board[NPOS_XP][NPOS_YP]->obj.type =
-        global->board[OPOS_XP][OPOS_YP]->obj.type;
-    global->board[NPOS_XP][NPOS_YP]->obj.side =
-        global->board[OPOS_XP][OPOS_YP]->obj.side;
-    
-    opos_update(global->board, opos);
-    global->board[OPOS_XP][OPOS_YP]->obj.type = empty;
-    global->board[OPOS_XP][OPOS_YP]->obj.side = none;
+	global->board[OPOS_XP][OPOS_YP]->obj.type = empty;
+	global->board[OPOS_XP][OPOS_YP]->obj.side = none;
 }
 
 
@@ -542,9 +545,10 @@ check_correct_of_movement (struct chess *global, uint8_t *opos,
         printf("ERROR_INPUT_FRIENDLY_ATTACK\n");
         return ERROR_INPUT_FRIENDLY_ATTACK;
     }
-    if  (global->board[OPOS_XP][OPOS_YP]->attacked ==
-		 (global->user_side == white ? by_black : by_white) &&
-		 check_hidden_king_attack(global, opos))
+    if ((global->board[OPOS_XP][OPOS_YP]->attacked == both_attacked ||
+         global->board[OPOS_XP][OPOS_YP]->attacked ==
+		 (global->user_side == white ? by_black : by_white)) &&
+        check_hidden_king_attack(global, opos))
     {
         printf("Failure check_correct_of_movement\n");
         return -1;

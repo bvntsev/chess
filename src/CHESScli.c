@@ -33,7 +33,7 @@
 
 
 uint8_t last_move[2] = {1, 1};
-
+extern enum piece_t pawn_transformation;
 
 static int8_t
 check_correct_input (char **pos)
@@ -68,7 +68,6 @@ get_fig_symbol (enum piece_t *type, enum color_t *color)
 
 
 static void print_board_pve(struct square ***board, enum color_t *user_side) {
-	printf("\033[2J\033[H");  
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
@@ -176,23 +175,22 @@ input_proc (char *input, char **pos)
 
 
 void printf_debug(struct square ***board) {
-
-  printf("\n");  
-  printf("    A B C D E F G H\n");
-  for (int8_t i = 0; i < 8; ++i) {
-	  printf("%d | ", 8 - i);
-	  for (uint8_t j = 0; j < 8; ++j) {
-		  if (board[i][j]->attacked == 0) {
-			  printf(". ");
-			  continue;
-		  }                  
-		  printf("%d ", board[i][j]->attacked
-				 == -1 ? 2 : board[i][j]->attacked);
-	  }
-	  printf("| %d\n", 8 - i);
-  }
-  printf("    A B C D E F G H\n");
-}  
+	printf("\n");  
+	printf("    A B C D E F G H\n");
+	for (int8_t i = 0; i < 8; ++i) {
+		printf("%d | ", 8 - i);
+		for (uint8_t j = 0; j < 8; ++j) {
+			if (board[i][j]->attacked == 0) {
+				printf(". ");
+				continue;
+			}                  
+			printf("%d ", board[i][j]->attacked
+				   == -1 ? 2 : board[i][j]->attacked);
+		}
+		printf("| %d\n", 8 - i);
+	}
+	printf("    A B C D E F G H\n");
+}
 
 
 uint8_t 
@@ -201,11 +199,11 @@ CLI_run_session_pvp (struct chess *global)
     uint8_t status = GAME_STATUS_SESSION_ACTIVE;
     FILE *stream = new_logging(modern_move_logging);
     
-    void (*print_board)(struct square ***, enum color_t *) = print_board_pve;
-    for (;status == GAME_STATUS_SESSION_ACTIVE;)
-    {
+    void (*print_board)(struct square ***, enum color_t *) = print_board_pvp;
+    for (; status == GAME_STATUS_SESSION_ACTIVE;) {
+		printf("\033[2J\033[H"); // DEBUG_HERE
         print_board(global->board, &global->user_side);
-		printf_debug(global->board);
+		/* printf_debug(global->board); */
         char *user_input = NULL;
         size_t len = 0;
         ssize_t glread = getline(&user_input, &len, stdin);
@@ -275,12 +273,15 @@ CLI_run_session_pvp (struct chess *global)
             if (err == HELP_CODE) continue;
             // old pos
             uint8_t opos = get_pos_value(&pos[0][0], &pos[0][1]);
+#if RULE_NON_EMPTY_PIECE_MOVED == 1
             if (global->board[OPOS_X][OPOS_Y]->obj.type == empty)
             {
                 printf("ERROR: EMPTY SQUARE MOVED\n");
                 free(user_input); free(pos);
                 continue;
             }
+#endif
+#if RULE_TURN_ORDER == 1
             if (global->board[OPOS_X][OPOS_Y]->obj.side
 				!= global->user_side)
             {
@@ -288,30 +289,72 @@ CLI_run_session_pvp (struct chess *global)
                 free(user_input); free(pos);
                 continue;
             }
+#endif            
             /* new pos */
             uint8_t npos = get_pos_value(&pos[1][0], &pos[1][1]);
-            if (!check_correct_of_movement(global, &opos, &npos))
-            {
-                int8_t err = SIMPLE_new_record(stream, &opos, &npos);
-                if (err)
-                {
+
+
+            if (check_correct_of_movement(global, &opos, &npos) != 0) {
+				fprintf(stderr, "Invalid move\n");
+				free(user_input);
+				free(pos);
+				continue;
+
+			}
+			int8_t log_err = SIMPLE_new_record(stream, &opos, &npos);
+			if (log_err)
+			{
+				free(user_input);
+				free(pos);
+				fclose(stream);
+				return -1;
+			}                  
+            if (global->board[OPOS_X][OPOS_Y]->obj.type == pawn &&
+                ((NPOS_X == 7 &&
+                  global->board[OPOS_X][OPOS_Y]->obj.side == black) ||
+                 (NPOS_X == 0 &&
+                  global->board[OPOS_X][OPOS_Y]->obj.side == white))) {
+				
+				printf("Write new type of a piece\n");
+				printf("Queen Knight Rook Bishop\n");
+                                
+				int8_t new_piece = getchar();
+				int32_t buf_clear;
+				while ((buf_clear = getchar()) != '\n' &&
+					   buf_clear != EOF) { }
+
+				new_piece = GET_STANDART_SYMBOL(new_piece);
+                                
+				switch (new_piece) {
+				case 'q':
+					pawn_transformation = queen;
+					break;
+				case 'k':
+					pawn_transformation = knight;
+					break;
+				case 'n':
+					pawn_transformation = knight;
+					break;
+				case 'r':
+					pawn_transformation = rook;
+					break;
+				case 'b':
+					pawn_transformation = bishop;
+					break;
+				default:
+					fprintf(stderr, "Incorrect input, try your move again\n");
                     free(user_input);
                     free(pos);
-                    fclose(stream);
-                    return -1;
-                }
-                else
-                {
-                    user_move(global, &opos, &npos);
-                    last_move[0] = opos;
-                    last_move[1] = npos;
-                    global->user_side
-                        = (global->user_side == white ? black : white);
-                }
-            }
-            else
-                printf("Invalid move\n");
-            free(pos);
+					continue;
+				}
+			}
+
+			user_move(global, &opos, &npos);
+			last_move[0] = opos;
+			last_move[1] = npos;
+			global->user_side =
+				(global->user_side == white ? black : white);
+			free(pos);
         }
         else
         {

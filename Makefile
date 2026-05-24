@@ -49,6 +49,9 @@ debug:
 debug_all_konsole: clean all
 	konsole -e gdb ./build/chess
 
+valgrind_all_konsole: clean all
+	konsole -e valgrind ./build/chess
+
 valgrind_all: clean all valgrind
 
 valgrind:

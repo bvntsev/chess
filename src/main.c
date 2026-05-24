@@ -28,6 +28,7 @@ main (void)
             global->board = (struct square ***)
                                  (malloc(sizeof(struct square **) * 8));
             create_board(global->board);
+            /* set_training_board(global->board, "EEEEPEEEEEEpEEEEEEEEPEEEEEEEEkEEEEEEEEEEEEEEEEEEppppppppdnbqkbnd"); */
             exit_code = CLI_run_session_pvp(global);
         }
         for (int8_t i = 0; i < 8; ++i)
