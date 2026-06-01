@@ -23,21 +23,25 @@ main (void)
         uint8_t exit_code;
         if (global)
         {
-            global->user_side = white;
+			global->user_side = white;
+			global->kpos_b = 5;
+			global->kpos_w = 61;
+            global->pawn_transformation = empty;
+            global->last_move[0] = 0;
+            global->last_move[1] = 0;
             user_side = &global->user_side;
-            global->board = (struct square ***)
-                                 (malloc(sizeof(struct square **) * 8));
-            create_board(global->board);
-            /* set_training_board(global->board, "EEEEPEEEEEEpEEEEEEEEPEEEEEEEEkEEEEEEEEEEEEEEEEEEppppppppdnbqkbnd"); */
+            /* create_board(global->board); */            
+            set_training_board(global->board,
+                    "EEEEPEEE"
+                    "EEEpEEEE"
+                    "EEEEPEEE"
+                    "EEEEEkEE"
+                    "EEEEEEEE"
+                    "EEEEEEEE"
+                    "pppppppp"
+                    "dnbqkbnd");
             exit_code = CLI_run_session_pvp(global);
         }
-        for (int8_t i = 0; i < 8; ++i)
-        {
-            for (int8_t j = 0; j < 8; ++j)
-                free(global->board[i][j]);
-            free(global->board[i]);
-        }
-        free(global->board);
         free(global);
         switch (exit_code) {
             case EXIT_CODE:

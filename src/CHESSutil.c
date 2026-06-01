@@ -26,60 +26,63 @@
 /*     PRINT_DASH */
 /* }; */
 
-struct square ***set_training_board(struct square ***board, char *custom_pos) {
+struct square *set_training_board(struct square (*board)[8], char *custom_pos) {
 	/* printf_ascii_charactrers(); */
 	for (uint8_t i = 0; i < 8; ++i) {
-        board[i] = (malloc(sizeof(struct square *) * 8));
         for (uint8_t j = 0; j < 8; ++j) {
-            board[i][j] = (malloc(sizeof(struct square )));
             /* setting color the board squares */
-            board[i][j]->side = (2 - ((i ^ j) & 1));
+            board[i][j].side = (2 - ((i ^ j) & 1));
             /* setting color of the pieces */
-			board[i][j]->obj.side =
+			board[i][j].obj.side =
                 ((custom_pos[i * 8 + j] ^ 'E') != 0) +
 				((custom_pos[i * 8 + j] >> 5) & 1);
             /* setting initial attacked zone by pawns */
-			/* board[i][j]->attacked = (i == 2 || i == 5) - (2 * (i == 2));
+			/* board[i][j].attacked = (i == 2 || i == 5) - (2 * (i == 2));
 			 */
-			board[i][j]->attacked = safe_square;
+			board[i][j].attacked = safe_square;
             /* setting type of the pieces */
-            board[i][j]->obj.type =
+            board[i][j].obj.type =
                 (7 & custom_pos[i * 8 + j]);
             /* setting position of the squares */
-            board[i][j]->pos = i * 8 + (j);
+            board[i][j].pos = i * 8 + (j);
 
-            board[i][j]->b_attack = 0;
-            board[i][j]->w_attack = 0;
+            board[i][j].b_attack = 0;
+            board[i][j].w_attack = 0;
 		}
     }
-    return board;  
+    return &(board[0][0]);  
 }
 
 
-struct square ***create_board(struct square ***board) {
+struct square *create_board(struct square (*board)[8]) {
   // here are low register are WHITE and high are BLACK  
     char *start_pos = 
-        "DNBQKBNDPPPPPPPPEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEppppppppdnbqkbnd";
+        "DNBQKBND"
+        "PPPPPPPP"
+        "EEEEEEEE"
+        "EEEEEEEE"
+        "EEEEEEEE"
+        "EEEEEEEE"
+        "pppppppp"
+        "dnbqkbnd";
     for (uint8_t i = 0; i < 8; ++i) {
-        board[i] = (malloc(sizeof(struct square *) * 8));
         for (uint8_t j = 0; j < 8; ++j) {
-            board[i][j] = (malloc(sizeof(struct square )));
             /* setting color the board squares */
-            board[i][j]->side = (2 - ((i ^ j) & 1));
+            board[i][j].side = (2 - ((i ^ j) & 1));
             /* setting color of the pieces */
-                board[i][j]->obj.side =
+                board[i][j].obj.side =
                 ((start_pos[i * 8 + j] ^ 'E') != 0) +
                                     ((start_pos[i * 8 + j] >> 5) & 1);
             /* setting initial attacked zone by pawns */
-            board[i][j]->attacked = (i == 2 || i == 5) - (2 * (i == 2)); 
+            board[i][j].attacked = (i == 2 || i == 5) - (2 * (i == 2)); 
             /* setting type of the pieces */
-            board[i][j]->obj.type =
+            board[i][j].obj.type =
                 (7 & start_pos[i * 8 + j]);
             /* setting position of the squares */
-            board[i][j]->pos = i * 8 + (j);
-            board[i][j]->b_attack = i == 2;
-            board[i][j]->w_attack = i == 5;
+            board[i][j].pos = i * 8 + (j);
+            board[i][j].b_attack = i == 2;
+            board[i][j].w_attack = i == 5;
         }
     }
-    return board;
+    return &(board[0][0]);
 }

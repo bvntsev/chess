@@ -28,13 +28,15 @@ DONE 5/24/26
 ** DONE Fix bug with incorrect seeing move
 ** TODO Write user-session features
 *** DONE CLI Infinity loop
-*** TODO Reading user move and change the board
-**** TODO Check correct of move
+*** DONE Reading user move and change the board
+**** DONE Check correct of move
 ** TODO Bot player  
 *** TODO Get some info about chess bots/alghoritms and choose the best option
 Maybe it'd machine learning or something looks like AI  
 At first choose bots/alghoritm
 ** DONE Pawn transformation to other type of a piece
+** TODO DRAW 
+** TODO King CHECK
 * BUGS
 ** 
 * notes

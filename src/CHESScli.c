@@ -32,9 +32,6 @@
 // }
 
 
-uint8_t last_move[2] = {1, 1};
-extern enum piece_t pawn_transformation;
-
 static int8_t
 check_correct_input (char **pos)
 {
@@ -67,13 +64,13 @@ get_fig_symbol (enum piece_t *type, enum color_t *color)
 };
 
 
-static void print_board_pve(struct square ***board, enum color_t *user_side) {
+static void print_board_pve(struct square (*board)[8], enum color_t *user_side) {
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
 		for (uint8_t j = 0; j < 8; ++j) {
-			printf("%c ", get_fig_symbol(&board[i][j]->obj.type,
-										 &board[i][j]->obj.side));
+			printf("%c ", get_fig_symbol(&board[i][j].obj.type,
+										 &board[i][j].obj.side));
 		}
 		printf("| %d\n", 8 - i);
 	}
@@ -82,7 +79,7 @@ static void print_board_pve(struct square ***board, enum color_t *user_side) {
 
 
 static void 
-print_board_pvp (struct square ***board, enum color_t *user_side)
+print_board_pvp (struct square (*board)[8], enum color_t *user_side)
 {
     switch (*user_side)
     {
@@ -92,8 +89,8 @@ print_board_pvp (struct square ***board, enum color_t *user_side)
 		for (int8_t i = 0; i < 8; ++i) {
 			printf("%d | ", 8 - i);
 			for (uint8_t j = 0; j < 8; ++j) {
-				printf("%c ", get_fig_symbol(&board[i][j]->obj.type,
-											 &board[i][j]->obj.side));
+				printf("%c ", get_fig_symbol(&board[i][j].obj.type,
+											 &board[i][j].obj.side));
 			}
 			printf("| %d\n", 8 - i);
 		}
@@ -106,8 +103,8 @@ print_board_pvp (struct square ***board, enum color_t *user_side)
 			printf("%d | ", 8 - i);
 			for (int8_t j = 7; j >= 0; --j) {
 				printf("%c ", get_fig_symbol(
-						   &board[i][j]->obj.type,
-						   &board[i][j]->obj.side));
+						   &board[i][j].obj.type,
+						   &board[i][j].obj.side));
 			}
 			printf("| %d\n", 8 - i);
 		}
@@ -135,12 +132,12 @@ input_proc (char *input, char **pos)
     if (strncmp(input, "--", 2) == 0) {
         input += 2;
         if (strncmp(input, "help", 4) == 0) {
-			printf(
-				"\n--CHESS HELP--\n"
-				"--help\t\tget this help message\n"
-				"--exit\t\tdon't save and exit\n"
-				"--reload\tto reload game\n"
-				"--clear\t\tclear old boards\n\n"
+          printf("--CHESS HELP--\n"
+                 "You can make your move simple a2:a4 or a2a4\n"
+                 "--help\t\tget this help message\n"
+                 "--reload\tto reload game\n"
+                 "--clear\t\tclear old boards\n\n"
+				 "--exit\t\tdon't save and exit\n"                 
 				);
 			return HELP_CODE;
         }
@@ -174,18 +171,18 @@ input_proc (char *input, char **pos)
 }
 
 
-void printf_debug(struct square ***board) {
+void printf_debug(struct square (*board)[8]) {
 	printf("\n");  
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
 		for (uint8_t j = 0; j < 8; ++j) {
-			if (board[i][j]->attacked == 0) {
+			if (board[i][j].attacked == 0) {
 				printf(". ");
 				continue;
 			}                  
-			printf("%d ", board[i][j]->attacked
-				   == -1 ? 2 : board[i][j]->attacked);
+			printf("%d ", board[i][j].attacked
+				   == -1 ? 2 : board[i][j].attacked);
 		}
 		printf("| %d\n", 8 - i);
 	}
@@ -198,12 +195,15 @@ CLI_run_session_pvp (struct chess *global)
 {
     uint8_t status = GAME_STATUS_SESSION_ACTIVE;
     FILE *stream = new_logging(modern_move_logging);
-    
-    void (*print_board)(struct square ***, enum color_t *) = print_board_pvp;
+    uint8_t print_flag = 1;
+    void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pve;
     for (; status == GAME_STATUS_SESSION_ACTIVE;) {
-		printf("\033[2J\033[H"); // DEBUG_HERE
-        print_board(global->board, &global->user_side);
-		/* printf_debug(global->board); */
+        if (print_flag) {
+            printf("\033[2J\033[H"); // DEBUG_HERE
+            print_board(global->board, &global->user_side);
+            printf_debug(global->board);
+        } else
+          print_flag = 1;
         char *user_input = NULL;
         size_t len = 0;
         ssize_t glread = getline(&user_input, &len, stdin);
@@ -218,6 +218,7 @@ CLI_run_session_pvp (struct chess *global)
 			{
 				free(user_input);
 				free(pos);
+				print_flag = 0;                                
 				continue;
 			}
 			case EXIT_CODE:
@@ -238,6 +239,7 @@ CLI_run_session_pvp (struct chess *global)
 				printf("========CLEARED========\n");
 				free(user_input);
 				free(pos);
+				print_flag = 1;
 				continue;
 			}
 			case INVALID_OPTION:
@@ -245,6 +247,7 @@ CLI_run_session_pvp (struct chess *global)
 				printf("Incorrect input. Check --help\n");
 				free(user_input);
 				free(pos);
+				print_flag = 0;                                
 				continue;
 			}
 			case ERROR_INPUT_INCORRECT_SYMBOL:
@@ -252,6 +255,7 @@ CLI_run_session_pvp (struct chess *global)
 				printf("Incorrect input. Check --help\n");
 				free(user_input);
 				free(pos);
+				print_flag = 0;                                
 				continue;
 			}
 			case ERROR_INPUT_INCORRECT_LEN:
@@ -259,6 +263,7 @@ CLI_run_session_pvp (struct chess *global)
 				printf("Incorrect number of pos. Check --help\n");
 				free(user_input);
 				free(pos);
+				print_flag = 0;                                
 				continue;
 			}
 			default:
@@ -266,26 +271,28 @@ CLI_run_session_pvp (struct chess *global)
 				perror("Specific case. Check --help\n");
 				free(user_input);
 				free(pos);
+				print_flag = 0;                                
 				continue;
 			}
 
             }
-            if (err == HELP_CODE) continue;
             // old pos
             uint8_t opos = get_pos_value(&pos[0][0], &pos[0][1]);
 #if RULE_NON_EMPTY_PIECE_MOVED == 1
-            if (global->board[OPOS_X][OPOS_Y]->obj.type == empty)
+            if (global->board[OPOS_X][OPOS_Y].obj.type == empty)
             {
                 printf("ERROR: EMPTY SQUARE MOVED\n");
                 free(user_input); free(pos);
+				print_flag = 0;                                
                 continue;
             }
 #endif
 #if RULE_TURN_ORDER == 1
-            if (global->board[OPOS_X][OPOS_Y]->obj.side
+            if (global->board[OPOS_X][OPOS_Y].obj.side
 				!= global->user_side)
             {
                 printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
+				print_flag = 0;                                
                 free(user_input); free(pos);
                 continue;
             }
@@ -298,6 +305,7 @@ CLI_run_session_pvp (struct chess *global)
 				fprintf(stderr, "Invalid move\n");
 				free(user_input);
 				free(pos);
+				print_flag = 0;                                
 				continue;
 
 			}
@@ -309,11 +317,11 @@ CLI_run_session_pvp (struct chess *global)
 				fclose(stream);
 				return -1;
 			}                  
-            if (global->board[OPOS_X][OPOS_Y]->obj.type == pawn &&
+            if (global->board[OPOS_X][OPOS_Y].obj.type == pawn &&
                 ((NPOS_X == 7 &&
-                  global->board[OPOS_X][OPOS_Y]->obj.side == black) ||
+                  global->board[OPOS_X][OPOS_Y].obj.side == black) ||
                  (NPOS_X == 0 &&
-                  global->board[OPOS_X][OPOS_Y]->obj.side == white))) {
+                  global->board[OPOS_X][OPOS_Y].obj.side == white))) {
 				
 				printf("Write new type of a piece\n");
 				printf("Queen Knight Rook Bishop\n");
@@ -327,33 +335,41 @@ CLI_run_session_pvp (struct chess *global)
                                 
 				switch (new_piece) {
 				case 'q':
-					pawn_transformation = queen;
+					global->pawn_transformation = queen;
 					break;
 				case 'k':
-					pawn_transformation = knight;
+					global->pawn_transformation = knight;
 					break;
 				case 'n':
-					pawn_transformation = knight;
+					global->pawn_transformation = knight;
 					break;
 				case 'r':
-					pawn_transformation = rook;
+					global->pawn_transformation = rook;
 					break;
 				case 'b':
-					pawn_transformation = bishop;
+					global->pawn_transformation = bishop;
 					break;
 				default:
 					fprintf(stderr, "Incorrect input, try your move again\n");
                     free(user_input);
                     free(pos);
+					print_flag = 0;                                
 					continue;
 				}
 			}
 
 			user_move(global, &opos, &npos);
-			last_move[0] = opos;
-			last_move[1] = npos;
+			global->last_move[0] = opos;
+			global->last_move[1] = npos;
+			if (global->board[OPOS_X][OPOS_Y].obj.type == king) {
+				if (global->board[OPOS_X][OPOS_Y].obj.side == white)
+					global->kpos_w = npos;
+				else
+					global->kpos_b = npos;                                  
+			}			
 			global->user_side =
 				(global->user_side == white ? black : white);
+			free(user_input);
 			free(pos);
         }
         else
@@ -371,7 +387,6 @@ CLI_run_session_pvp (struct chess *global)
                 return ERROR_INPUT_GETLINE;
             }
         }
-        free(user_input);
     }
 
     fclose(stream);

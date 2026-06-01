@@ -45,7 +45,7 @@
 #define ERROR_FOREIGN_PIECES                    0x1c
 #define ERROR_INCORRECT_PAWN_TRANSFORMATION     0x1d
 
-#define RULE_TURN_ORDER 1
+#define RULE_TURN_ORDER 0
 #define RULE_NON_EMPTY_PIECE_MOVED 1
 
 #define OPOS_X  (opos - 1)  / 8

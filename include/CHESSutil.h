@@ -36,27 +36,29 @@ struct piece
 
 struct square
 {
+	uint8_t w_attack;
+	int8_t pos;
+    uint8_t 			b_attack;
 	enum color_t      	side;
 	enum attack_t     	attacked;
-	int8_t            	pos;
 	struct piece 		obj;
  // It needs for optimization of after move alghoritm
-	uint8_t 			w_attack;
-    uint8_t 			b_attack;
-        
 };
 
 
-struct chess
-{
+struct chess {
+	uint8_t kpos_w;
+	uint8_t kpos_b;
+    uint8_t last_move[2];
+    enum piece_t pawn_transformation;
 	enum color_t user_side;
-	struct square ***board;
+	struct square board[8][8];
 
 };
 
-struct square ***
-create_board(struct square ***board);
+struct square *
+create_board(struct square (*board)[8]);
 
-struct square ***set_training_board(struct square ***board, char *custom_pos);
+struct square *set_training_board(struct square (*board)[8], char *custom_pos);
 
 #endif // CHESSUTIL_H
