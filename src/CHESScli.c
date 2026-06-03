@@ -172,21 +172,51 @@ input_proc (char *input, char **pos)
 
 
 void printf_debug(struct square (*board)[8]) {
-	printf("\n");  
+	printf("attacked\n");  
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
 		for (uint8_t j = 0; j < 8; ++j) {
-			if (board[i][j].attacked == 0) {
+			enum attack_t attacked = get_attack_t(&board[i][j]);
+			if (attacked == 0) {
 				printf(". ");
 				continue;
 			}                  
-			printf("%d ", board[i][j].attacked
-				   == -1 ? 2 : board[i][j].attacked);
+			printf("%d ", attacked
+				   == -1 ? 2 : attacked);
 		}
 		printf("| %d\n", 8 - i);
 	}
 	printf("    A B C D E F G H\n");
+	printf("w_attack\n");  
+	printf("    A B C D E F G H\n");
+	for (int8_t i = 0; i < 8; ++i) {
+		printf("%d | ", 8 - i);
+		for (uint8_t j = 0; j < 8; ++j) {
+			if (board[i][j].w_attack == 0) {
+				printf(". ");
+				continue;
+			}                  
+			printf("%d ", board[i][j].w_attack);
+		}
+		printf("| %d\n", 8 - i);
+	}
+	printf("    A B C D E F G H\n");
+	printf("b_attack\n");  
+	printf("    A B C D E F G H\n");
+	for (int8_t i = 0; i < 8; ++i) {
+		printf("%d | ", 8 - i);
+		for (uint8_t j = 0; j < 8; ++j) {
+			if (board[i][j].b_attack == 0) {
+				printf(". ");
+				continue;
+			}                  
+			printf("%d ", board[i][j].b_attack);
+		}
+		printf("| %d\n", 8 - i);
+	}
+	printf("    A B C D E F G H\n");
+        
 }
 
 
@@ -196,12 +226,12 @@ CLI_run_session_pvp (struct chess *global)
     uint8_t status = GAME_STATUS_SESSION_ACTIVE;
     FILE *stream = new_logging(modern_move_logging);
     uint8_t print_flag = 1;
-    void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pve;
+    void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pvp;
     for (; status == GAME_STATUS_SESSION_ACTIVE;) {
         if (print_flag) {
             printf("\033[2J\033[H"); // DEBUG_HERE
             print_board(global->board, &global->user_side);
-            printf_debug(global->board);
+            /* printf_debug(global->board); */
         } else
           print_flag = 1;
         char *user_input = NULL;

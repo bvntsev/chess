@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#define DEBUG_MSG(...) new_debug_record(__VA_ARGS__)
+
 enum logging_t {
     modern_move_logging, poor_move_logging, debugging
 };

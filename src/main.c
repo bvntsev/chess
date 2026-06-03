@@ -15,7 +15,7 @@ int32_t
 main (void)
 {
 
-    new_debug_record("New main start");
+    DEBUG_MSG("New main start");
     for (;;)
     {
         struct chess *global;
@@ -30,16 +30,25 @@ main (void)
             global->last_move[0] = 0;
             global->last_move[1] = 0;
             user_side = &global->user_side;
-            /* create_board(global->board); */            
-            set_training_board(global->board,
-                    "EEEEPEEE"
-                    "EEEpEEEE"
-                    "EEEEPEEE"
-                    "EEEEEkEE"
-                    "EEEEEEEE"
-                    "EEEEEEEE"
-                    "pppppppp"
-                    "dnbqkbnd");
+            create_board(global->board);
+            /* set_training_board(global->board, */
+                    /* "EEEEEEEE" */
+                    /* "EEEBEEEE" */
+                    /* "EEpEEEEE" */
+                    /* "EbEEEEEE" */
+                    /* "EEEEEEEE" */
+                    /* "EEEEEEEE" */
+                    /* "EEEEEEEE" */
+                    /* "EEEEEEEE"); */
+                    /* "EEEEEEEE" */
+                    /* "EEEEEEEE" */
+                    /* "EBEEEEEE" */
+                    /* "EEEEEEEE" */
+                    /* "EEEpEEEE" */
+                    /* "EEEEkEEE" */
+                    /* "EEEEEEEE" */
+                    /* "EEEEEEEE"); /\* C5 -- FIXED *\/ */
+ 			init_attacking_board(global->board);
             exit_code = CLI_run_session_pvp(global);
         }
         free(global);
@@ -48,7 +57,7 @@ main (void)
                 break;
             case RELOAD_CODE:
                 printf("========RELOADED=======\n");
-                new_debug_record("reloaded cli game");
+                DEBUG_MSG("reloaded cli game");
                 continue;
             default:
             {

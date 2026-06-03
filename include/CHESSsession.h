@@ -45,14 +45,17 @@
 #define ERROR_FOREIGN_PIECES                    0x1c
 #define ERROR_INCORRECT_PAWN_TRANSFORMATION     0x1d
 
-#define RULE_TURN_ORDER 0
+#define RULE_TURN_ORDER 1
 #define RULE_NON_EMPTY_PIECE_MOVED 1
 
+
+/* old pos */
 #define OPOS_X  (opos - 1)  / 8
 #define OPOS_Y  (opos - 1)  % 8
 #define OPOS_XP (*opos - 1) / 8
 #define OPOS_YP (*opos - 1) % 8
 
+/* new pos */
 #define NPOS_X  (npos - 1)  / 8
 #define NPOS_Y  (npos - 1)  % 8
 #define NPOS_XP (*npos - 1) / 8
@@ -65,4 +68,8 @@ user_move (struct chess *global, unsigned char *opos, unsigned char *npos);
 
 int32_t
 check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos);
+
+void
+init_attacking_board(struct square (*board)[8]);
+
 #endif

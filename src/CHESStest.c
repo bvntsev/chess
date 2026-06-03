@@ -38,8 +38,6 @@ set_training_field()
             ChessBoard[i][j]->obj.side =
             ((start_pos[i * 8 + j] ^ 'E') != 0) +
                                 ((start_pos[i * 8 + j] >> 5) & 1);
-            /* setting initial attacked zone by pawns */
-            ChessBoard[i][j]->attacked = safe_square;
             // ChessBoard[i][j]->attacked = (i == 2 || i == 5) - (2 * (i == 2)); 
             /* setting type of the pieces */
             ChessBoard[i][j]->obj.type =

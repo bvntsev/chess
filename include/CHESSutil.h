@@ -40,7 +40,6 @@ struct square
 	int8_t pos;
     uint8_t 			b_attack;
 	enum color_t      	side;
-	enum attack_t     	attacked;
 	struct piece 		obj;
  // It needs for optimization of after move alghoritm
 };
@@ -60,5 +59,7 @@ struct square *
 create_board(struct square (*board)[8]);
 
 struct square *set_training_board(struct square (*board)[8], char *custom_pos);
+
+enum attack_t get_attack_t(struct square *sq);
 
 #endif // CHESSUTIL_H
