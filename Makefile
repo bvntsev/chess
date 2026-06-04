@@ -12,13 +12,13 @@ CFLAGS = $(CDEBUG) -I$(includedir) -I$(srcdir) $(DEFS)
 LDFLAGS = -g
 
 OBJS = \
-	$(builddir)/CHESScli.o \
-	$(builddir)/CHESSgui.o \
-	$(builddir)/CHESSlogging.o \
-	$(builddir)/CHESSpieces.o \
-	$(builddir)/CHESSsession.o \
-	$(builddir)/CHESStest.o \
-	$(builddir)/CHESSutil.o \
+	$(builddir)/cli.o \
+	$(builddir)/gui.o \
+	$(builddir)/logging.o \
+	$(builddir)/attack_update.o \
+	$(builddir)/engine.o \
+	$(builddir)/test.o \
+	$(builddir)/util.o \
 	$(builddir)/main.o
 
 OBJSDIR = $(addprefix $(builddir)/,$(OBJS))

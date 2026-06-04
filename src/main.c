@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/CHESSutil.h"
-#include "../include/CHESSsession.h"
-#include "../include/CHESScli.h"
-#include "../include/CHESSlogging.h"
+#include "../include/util.h"
+#include "../include/engine.h"
+#include "../include/cli.h"
+#include "../include/logging.h"
 
 
 enum color_t *user_side;

@@ -1,4 +1,4 @@
-#include "../include/CHESSutil.h"
+#include "../include/util.h"
 
 /* static void printf_binary(char *value) { */
 /*     for (int i = 7; i >= 0; --i) */

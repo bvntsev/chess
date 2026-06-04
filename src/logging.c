@@ -6,8 +6,8 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 
-#include "../include/CHESSlogging.h"
-#include "../include/CHESSutil.h"
+#include "../include/logging.h"
+#include "../include/util.h"
 
 
 extern enum color_t *user_side;

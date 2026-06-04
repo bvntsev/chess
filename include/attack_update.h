@@ -1,7 +1,7 @@
 #ifndef CHESSPIECES
 #define CHESSPIECES
 
-#include "../include/CHESSutil.h"
+#include "../include/util.h"
 
 uint8_t
 pawn_pos_update(struct square (*board)[8], enum color_t *side, uint8_t *pos,

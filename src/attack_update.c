@@ -1,6 +1,6 @@
-#include "../include/CHESSpieces.h"
-#include "../include/CHESSutil.h"
-#include "../include/CHESSlogging.h"
+#include "../include/attack_update.h"
+#include "../include/util.h"
+#include "../include/logging.h"
 
 #include <stdint.h>
 #include <stdlib.h>

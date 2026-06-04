@@ -1,6 +1,6 @@
 // #include "../include/CHESSsession.h"
-#include "../include/CHESStest.h"
-#include "../include/CHESSutil.h"
+#include "../include/test.h"
+#include "../include/util.h"
 // #include "../include/CHESScli.h"
 
 #include <stddef.h>

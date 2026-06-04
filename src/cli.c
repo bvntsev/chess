@@ -13,10 +13,10 @@
 #include <stddef.h>
 #include <sys/types.h>
 
-#include "../include/CHESSutil.h"
-#include "../include/CHESSsession.h"
-#include "../include/CHESScli.h"
-#include "../include/CHESSlogging.h"
+#include "../include/util.h"
+#include "../include/engine.h"
+#include "../include/cli.h"
+#include "../include/logging.h"
 
 // static enum type_pieces get_pieces_type(uint8_t symb) {
 //     symb = GET_STANDART_SYMBOL(symb);
@@ -231,7 +231,7 @@ CLI_run_session_pvp (struct chess *global)
         if (print_flag) {
             printf("\033[2J\033[H"); // DEBUG_HERE
             print_board(global->board, &global->user_side);
-            /* printf_debug(global->board); */
+            printf_debug(global->board);
         } else
           print_flag = 1;
         char *user_input = NULL;
