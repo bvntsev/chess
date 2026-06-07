@@ -1,5 +1,5 @@
-#ifndef GAMESSSION
-#define GAMESSSION
+#ifndef ENGINE_H
+#define ENGINE_H
 
 #include <stdint.h>
 
@@ -47,7 +47,7 @@
 
 #define ERROR_USELESS_MOVE_DURING_KING_ATTACK	0x1e
 
-#define RULE_TURN_ORDER 1
+#define RULE_TURN_ORDER 0
 #define RULE_NON_EMPTY_PIECE_MOVED 1
 
 
@@ -63,6 +63,13 @@
 #define NPOS_XP (*npos - 1) / 8
 #define NPOS_YP (*npos - 1) % 8
 
+/* king pos */
+#define KPOS_X  (kpos - 1)  / 8
+#define KPOS_Y  (kpos - 1)  % 8
+#define KPOS_XP (*kpos - 1) / 8
+#define KPOS_YP (*kpos - 1) % 8
+
+
 struct chess;
 
 uint8_t
@@ -74,4 +81,5 @@ check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos);
 void
 init_attacking_board(struct square (*board)[8]);
 
-#endif
+
+#endif // ENGINE_H

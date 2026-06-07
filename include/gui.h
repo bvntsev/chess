@@ -1,4 +1,4 @@
-#ifndef GUISSSION
-#define GUISSSION
+#ifndef GUI_H
+#define GUI_H
 
-#endif /* GUISSSION */
+#endif /* GUI_H */

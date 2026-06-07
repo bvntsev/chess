@@ -41,7 +41,13 @@ At first choose bots/alghoritm
 ** TODO DRAW 
 ** TODO King CHECK
 * BUGS
-** 
+** DONE BUG infinity increase horizontal and vertical ROOK ( in the while )
+If I move rook in same horizontal or verical The squares will be infinity increase
+Because two functions increase _attack parameter in the same time.
+This functions called npos_update and check_hidden_attack
+( New to add the additional conditions for check_hidden_attack I guess)
+** TODO Name of file and log file aren't equal (sometimes, dependent by state and OS)
+The time is shown incorrectly. (UTC I guess, not local)
 * notes
 Проверка для opos клетки на наличие диагональных/горизонтальных/вертикальных
 фигур любой команды, если такие есть, то обновляется их линия на атаку.

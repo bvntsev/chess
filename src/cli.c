@@ -1,12 +1,13 @@
 /* parsing input, display, output */
-
-#include <stdint.h>
 #ifdef __STDC_ALLOC_LIB__
 #define __STDC_WANT_LIB_EXT2__ 1
 #else
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
 #endif
+#endif
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -64,7 +65,7 @@ get_fig_symbol (enum piece_t *type, enum color_t *color)
 };
 
 
-static void print_board_pve(struct square (*board)[8], enum color_t *user_side) {
+static void print_board_pve(struct square (*board)[8], enum color_t *player_side) {
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
@@ -79,9 +80,9 @@ static void print_board_pve(struct square (*board)[8], enum color_t *user_side) 
 
 
 static void 
-print_board_pvp (struct square (*board)[8], enum color_t *user_side)
+print_board_pvp (struct square (*board)[8], enum color_t *player_side)
 {
-    switch (*user_side)
+    switch (*player_side)
     {
 	case white:
 	{
@@ -172,7 +173,8 @@ input_proc (char *input, char **pos)
 
 
 void printf_debug(struct square (*board)[8]) {
-	printf("attacked\n");  
+	#if 1 == 1
+	printf("\nattacked\n");  
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
@@ -181,14 +183,15 @@ void printf_debug(struct square (*board)[8]) {
 			if (attacked == 0) {
 				printf(". ");
 				continue;
-			}                  
-			printf("%d ", attacked
-				   == -1 ? 2 : attacked);
+			}
+			printf("%d ", attacked == -1 ? 2 : attacked);
 		}
 		printf("| %d\n", 8 - i);
 	}
 	printf("    A B C D E F G H\n");
-	printf("w_attack\n");  
+	#endif 
+	#if 1 == 1
+	printf("\nw_attack\n");  
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
@@ -202,7 +205,9 @@ void printf_debug(struct square (*board)[8]) {
 		printf("| %d\n", 8 - i);
 	}
 	printf("    A B C D E F G H\n");
-	printf("b_attack\n");  
+	#endif
+	#if 1 == 1
+	printf("\nb_attack\n");  
 	printf("    A B C D E F G H\n");
 	for (int8_t i = 0; i < 8; ++i) {
 		printf("%d | ", 8 - i);
@@ -210,28 +215,29 @@ void printf_debug(struct square (*board)[8]) {
 			if (board[i][j].b_attack == 0) {
 				printf(". ");
 				continue;
-			}                  
+			}
 			printf("%d ", board[i][j].b_attack);
 		}
 		printf("| %d\n", 8 - i);
 	}
 	printf("    A B C D E F G H\n");
-        
+	#endif
 }
 
 
 uint8_t 
 CLI_run_session_pvp (struct chess *global)
 {
-    uint8_t status = GAME_STATUS_SESSION_ACTIVE;
+	#if DEBUG == 1
     FILE *stream = new_logging(modern_move_logging);
+	#endif
     uint8_t print_flag = 1;
-    void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pvp;
-    for (; status == GAME_STATUS_SESSION_ACTIVE;) {
+    void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pve;
+    for (; global->status == session_active; ) {
         if (print_flag) {
-            printf("\033[2J\033[H"); // DEBUG_HERE
-            print_board(global->board, &global->user_side);
-            printf_debug(global->board);
+            /* printf("\033[2J\033[H"); // DEBUG_HERE */
+            print_board(global->board, &global->player_side);
+            /* printf_debug(global->board); */
         } else
           print_flag = 1;
         char *user_input = NULL;
@@ -319,7 +325,7 @@ CLI_run_session_pvp (struct chess *global)
 #endif
 #if RULE_TURN_ORDER == 1
             if (global->board[OPOS_X][OPOS_Y].obj.side
-				!= global->user_side)
+				!= global->player_side)
             {
                 printf("ERROR_MOVE_FIGURE_OF_OTHER_SIDE\n");
 				print_flag = 0;                                
@@ -355,7 +361,7 @@ CLI_run_session_pvp (struct chess *global)
 				
 				printf("Write new type of a piece\n");
 				printf("Queen Knight Rook Bishop\n");
-                                
+			/* If player missed he got incorrect a piece. Like qishop/bnight */
 				int8_t new_piece = getchar();
 				int32_t buf_clear;
 				while ((buf_clear = getchar()) != '\n' &&
@@ -391,14 +397,7 @@ CLI_run_session_pvp (struct chess *global)
 			user_move(global, &opos, &npos);
 			global->last_move[0] = opos;
 			global->last_move[1] = npos;
-			if (global->board[OPOS_X][OPOS_Y].obj.type == king) {
-				if (global->board[OPOS_X][OPOS_Y].obj.side == white)
-					global->kpos_w = npos;
-				else
-					global->kpos_b = npos;                                  
-			}			
-			global->user_side =
-				(global->user_side == white ? black : white);
+			global->player_side = (global->player_side == white ? black : white);
 			free(user_input);
 			free(pos);
         }
@@ -418,7 +417,23 @@ CLI_run_session_pvp (struct chess *global)
             }
         }
     }
-
     fclose(stream);
+	printf("===========GAME IS FINISHED===========\n");
+	switch (global->status) {
+		case session_active:
+			printf("Incorrect game finished status\n");
+			return GAME_STATUS_SESSION_ACTIVE;
+		case end_stalemate:
+			printf("===========STALEMATE===========\n");
+			return GAME_STATUS_END_STALEMATE;
+		case finished_by_checkmate_black: {
+			printf("===========BLACK CHECKMATE===========\n");
+			return GAME_STATUS_END_CHECKMATE_BLACK;
+		}
+		case finished_by_checkmate_white: {
+			printf("===========WHITE CHECKMATE===========\n");
+			return GAME_STATUS_END_CHECKMATE_WHITE;
+			}
+	}
     return EXIT_CODE;
 }

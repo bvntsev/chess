@@ -23,6 +23,19 @@
 /*     PRINT_DASH */
 /* }; */
 
+
+uint8_t
+find_figure(struct square (*board)[8], enum color_t side, enum piece_t type) {
+    for (uint8_t i = 0; i < 8; ++i)
+        for (uint8_t j = 0; j < 8; ++j)
+            if (board[i][j].obj.type == type &&
+				board[i][j].obj.side == side) {
+                return i * 8 + j + 1;
+            }
+    return 255;
+}
+
+
 enum attack_t get_attack_t(struct square *sq) {
 	if (sq->b_attack >= 1 && sq->w_attack >= 1)
 		return both_attacked;
@@ -51,13 +64,14 @@ struct square *set_training_board(struct square (*board)[8], char *custom_pos) {
             board[i][j].obj.type =
                 (7 & custom_pos[i * 8 + j]);
             /* setting position of the squares */
-            board[i][j].pos = i * 8 + (j);
+            /* board[i][j].pos = i * 8 + (j + 1); */
             board[i][j].b_attack = 0;
             board[i][j].w_attack = 0;
 		}
     }
-    return &(board[0][0]);  
+    return &(board[0][0]);
 }
+
 
 
 struct square *create_board(struct square (*board)[8]) {
@@ -71,6 +85,7 @@ struct square *create_board(struct square (*board)[8]) {
         "EEEEEEEE"
         "pppppppp"
         "dnbqkbnd";
+
     for (uint8_t i = 0; i < 8; ++i) {
         for (uint8_t j = 0; j < 8; ++j) {
             /* setting color the board squares */
@@ -84,7 +99,7 @@ struct square *create_board(struct square (*board)[8]) {
             board[i][j].obj.type =
                 (7 & start_pos[i * 8 + j]);
             /* setting position of the squares */
-            board[i][j].pos = i * 8 + (j);
+            /* board[i][j].pos = i * 8 + (j); */
             board[i][j].b_attack = 0;
             board[i][j].w_attack = 0;
         }

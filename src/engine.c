@@ -3,7 +3,6 @@
 #include "../include/logging.h"
 #include "../include/attack_update.h"
 
-
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -11,15 +10,13 @@
 #include <sys/types.h>
 
 
-static uint8_t find_figure(struct square (*board)[8], enum color_t pcolor,
-                           enum piece_t type) {
-    for (uint8_t i = 0; i < 8; ++i)
-        for (uint8_t j = 0; j < 8; ++j)
-            if (board[i][j].obj.type == type &&
-				board[i][j].obj.side == pcolor) {
-                return board[i][j].pos;
-            }
-    return 255;
+static void
+print_square_info(struct square *sq) {
+	printf("side %d ", 	sq->side);
+	printf("b_attack %d ",  sq->b_attack);
+	printf("w_attack %d ",  sq->w_attack);
+	printf("obj.type %d ",  sq->obj.type);
+	printf("obj.side %d\n", sq->obj.side);
 }
 
 
@@ -81,11 +78,11 @@ static uint8_t check_hidden_king_attack(
 		? global->kpos_w
 		: global->kpos_b;
   
-    if (OPOS_XP == (kpos - 1) / 8) { // horizontal
+    if (OPOS_XP == KPOS_X) { // horizontal
         struct piece *non_empty = check_between_direct_line(
 			global->board, opos, &kpos);
         if (non_empty == NULL) {
-            if (OPOS_YP > (kpos - 1) % 8) {
+            if (OPOS_YP > KPOS_Y) {
                 for (uint8_t horiz = OPOS_YP + 1; horiz < 8; ++horiz) {
                     if (global->board[OPOS_XP][horiz].obj.type != empty) {
                         non_empty = &global->board[OPOS_XP][horiz].obj;
@@ -102,7 +99,7 @@ static uint8_t check_hidden_king_attack(
                 }
             }
         }
-        if (non_empty == NULL || non_empty->side == global->user_side)
+        if (non_empty == NULL || non_empty->side == global->player_side)
             return 0;
         if (non_empty->type == rook || non_empty->type == queen)
             return 1;
@@ -110,11 +107,11 @@ static uint8_t check_hidden_king_attack(
         return 0;
     }
 
-    if (OPOS_YP == (kpos - 1) % 8) { // vertical
+    if (OPOS_YP == KPOS_Y) { // vertical
         struct piece *non_empty = check_between_direct_line(
 			global->board, opos, &kpos);
         if (non_empty == NULL) {
-            if (OPOS_XP < (kpos - 1) / 8) {
+            if (OPOS_XP < KPOS_X) {
                 for (int8_t vert = OPOS_XP - 1; vert >= 0; --vert) {
                     if (global->board[vert][OPOS_YP].obj.type != empty) {
                         non_empty = &global->board[vert][OPOS_YP].obj;
@@ -131,20 +128,20 @@ static uint8_t check_hidden_king_attack(
                 }
             }
         }
-        if (non_empty == NULL || non_empty->side == global->user_side)
+        if (non_empty == NULL || non_empty->side == global->player_side)
             return 0;
         if (non_empty->type == rook || non_empty->type == queen)
             return 2;
         return 0;
     }
     // DIAGONAL
-    if (abs(OPOS_XP - ((kpos - 1) / 8)) == abs(OPOS_YP - ((kpos - 1) % 8))) {
+    if (abs(OPOS_XP - KPOS_X) == abs(OPOS_YP - KPOS_Y)) {
         struct square *non_empty = check_between_diagonal(
 			global->board, opos, &kpos);
 	
         if (non_empty == NULL) {
-            if (OPOS_XP < (kpos - 1) / 8) {
-                if (OPOS_YP < (kpos - 1) % 8) {
+            if (OPOS_XP < KPOS_X) {
+                if (OPOS_YP < KPOS_Y) {
                     DEBUG_MSG("diagonal loop #1");
                     for (int8_t diag = OPOS_XP - 1;
                          diag >= 0 && OPOS_YP - (OPOS_XP - diag) >= 0; --diag) {
@@ -171,7 +168,7 @@ static uint8_t check_hidden_king_attack(
             }
             else {
                 DEBUG_MSG("diagonal loop #3");
-                if (OPOS_YP < (kpos - 1) % 8) {
+                if (OPOS_YP < KPOS_Y) {
 					for (int8_t diag = OPOS_XP + 1;
 						 diag < 8 && OPOS_YP - (diag - OPOS_XP) >= 0; diag++)
 						if (global->board[diag][OPOS_YP - (diag - OPOS_XP)]
@@ -194,7 +191,7 @@ static uint8_t check_hidden_king_attack(
                 }
             }
         }
-        if (non_empty == NULL || non_empty->obj.side == global->user_side)
+        if (non_empty == NULL || non_empty->obj.side == global->player_side)
             return 0;
         if (non_empty->obj.type == bishop || non_empty->obj.type == queen)
             return 2;
@@ -479,7 +476,7 @@ static uint8_t npos_update(struct square (*board)[8], enum color_t side,
 
 
 static uint8_t *check_hidden_attack(struct square (*board)[8], uint8_t *pos,
-                                    void (*upd_func)(struct square *,
+                                    uint8_t (*upd_func)(struct square *,
                                                               enum color_t *))
 {
 	DEBUG_MSG("check_hidden_attack open");
@@ -532,8 +529,9 @@ static uint8_t *check_hidden_attack(struct square (*board)[8], uint8_t *pos,
 				if (board[POS_XP - (POS_YP - j)][j].obj.type != empty) break;
 			}
 		}
-		non_empty = NULL;     
-	}         
+	}
+	non_empty = NULL;     
+        
 	if (POS_YP != 7) {
 		for (int8_t j = POS_YP - 1; j >= 0; --j)
 			if (board[POS_XP][j].obj.type != empty) {
@@ -581,8 +579,8 @@ static uint8_t *check_hidden_attack(struct square (*board)[8], uint8_t *pos,
 				if (board[POS_XP - (j - POS_YP)][j].obj.type != empty) break;
 			}
 		}
-		non_empty = NULL;
 	}
+	non_empty = NULL;        
 	if (POS_XP != 0) {
 		for (uint8_t i = POS_XP + 1; i < 8; ++i)
 			if (board[i][POS_YP].obj.type != empty) {
@@ -597,12 +595,13 @@ static uint8_t *check_hidden_attack(struct square (*board)[8], uint8_t *pos,
 				if (board[i][POS_YP].obj.type != empty) break;
 			}
 		}
-		non_empty = NULL;
 	}
+	non_empty = NULL;
 	if (POS_XP != 7) {
-		for (int8_t i = POS_XP - 1; i >= 0; --i)            
+		for (int8_t i = POS_XP - 1; i >= 0; --i)
 			if (board[i][POS_YP].obj.type != empty) {
 				non_empty = &board[i][POS_YP].obj;
+				/* print_square_info(&board[i][POS_YP]); */
 				break;
 			}
 		if (non_empty && (non_empty->type == rook ||
@@ -613,13 +612,113 @@ static uint8_t *check_hidden_attack(struct square (*board)[8], uint8_t *pos,
 				if (board[i][POS_YP].obj.type != empty) break;
 			}
 		}
-		non_empty = NULL;
 	}
-	return 0;        
+	non_empty = NULL;
+	return 0;
 }
 
 
-uint8_t user_move(struct chess *global, uint8_t *opos, uint8_t *npos) {
+static uint8_t count_free_squares(struct square (*board)[8], enum color_t side,
+                           		enum piece_t type, uint8_t *npos) {
+	if (side == none)
+		return ERROR_INPUT_ABSENT_PIECES;
+  
+    switch (type) {
+    case pawn: {
+#define PAWN_XLEVEL (NPOS_XP + (side == black) - (side == white))
+	uint8_t counter = 0;
+	if (NPOS_YP == 0) {
+		counter += (board[PAWN_XLEVEL][NPOS_YP + 1].obj.side != side
+					&& board[PAWN_XLEVEL][NPOS_YP + 1].obj.type != empty);
+	}
+	else if (NPOS_YP == 7) {
+		counter += (board[PAWN_XLEVEL][NPOS_YP - 1].obj.side != side
+					&& board[PAWN_XLEVEL][NPOS_YP - 1].obj.type != empty);
+		
+	} else {
+		counter += (board[PAWN_XLEVEL][NPOS_YP + 1].obj.side != side
+					&& board[PAWN_XLEVEL][NPOS_YP + 1].obj.type != empty);
+		counter += (board[PAWN_XLEVEL][NPOS_YP - 1].obj.side != side
+					&& board[PAWN_XLEVEL][NPOS_YP - 1].obj.type != empty);
+	}
+	counter += board[PAWN_XLEVEL][NPOS_YP].obj.type == empty;
+	return counter;
+#undef PAWN_XLEVEL
+	}
+	case knight:
+		return knight_pos_update(board, &side, npos, square_is_free);
+	case king:
+		return king_pos_update(board, &side, npos, square_is_safe);
+	case queen:
+		return queen_pos_update(board, &side, npos, square_is_free);
+	case rook: 
+		return rook_pos_update(board, &side, npos, square_is_free);
+	case bishop:
+		return bishop_pos_update(board, &side, npos, square_is_free);
+    }
+	return ERROR_INPUT_ABSENT_PIECES;
+}
+
+
+void
+init_attacking_board(struct square (*board)[8]) {
+	for (uint8_t i = 0; i < 8; ++i) {
+		for (uint8_t j = 0; j < 8; ++j) {
+			uint8_t pos = i*8 + j + 1;
+			npos_update(board, board[i][j].obj.side, board[i][j].obj.type, &pos);
+		}
+	}              
+}
+
+
+static uint8_t
+get_number_of_available_move() {
+	
+}
+
+
+uint8_t
+check_on_stalemate_position(struct chess *global)
+{
+	/* Check on hidden attack on king */
+
+	/*	At first need to get number of available move by king
+	*	if a number equal 0 than continue check
+	*/
+	uint8_t *kpos = global->player_side == white
+											? &global->kpos_b : &global->kpos_w;
+	enum color_t side = global->player_side == white ? black : white;
+	
+	if (count_free_squares(global->board, side, king, kpos) != 0) {
+		printf("king has free square\n");
+
+		/* logical return if it's not checkmate */
+	}
+	
+
+	for (uint8_t i = 0; i < 8; ++i) {
+		for (uint8_t j = 0; j < 8; ++j) {
+			if (global->board[i][j].obj.side != side) continue;
+			uint8_t pos = i * 8 + j + 1;
+			// hard condition TODO
+			// Like If a piece freeze by hidden attack on the king
+			// and he can beat attacking piece it's not stalemate
+			if (check_hidden_king_attack(global, &pos)) {} 
+			if (count_free_squares(global->board, side,
+									global->board[i][j].obj.type, &pos) != 0) {
+				printf("%d %dpiece has free square\n", i, j);
+				return 0;
+				
+			}
+		}
+	}
+	
+	return 255;
+}
+
+
+uint8_t
+user_move(struct chess *global, uint8_t *opos, uint8_t *npos) {
 	/* Firstly If new pos was taken by someone else than clean enemy attacked
 	   squares. Than I update by new figure this square ( just update new pos and
 	   update each squares on new attacking by this a figure. Than I update old
@@ -631,71 +730,59 @@ uint8_t user_move(struct chess *global, uint8_t *opos, uint8_t *npos) {
 
 	clean_the_piece_attack(global->board, opos);
 	global->board[NPOS_XP][NPOS_YP].obj.side =
-		global->board[OPOS_XP][OPOS_YP].obj.side;
+									global->board[OPOS_XP][OPOS_YP].obj.side;
 	if (global->pawn_transformation != empty) {
+
 		global->board[OPOS_XP][OPOS_YP].obj.type = empty;
 		global->board[OPOS_XP][OPOS_YP].obj.side = none;
+
 		check_hidden_attack(global->board, opos, square_state_upd_by_attacking);
-		npos_update(global->board, global->board[NPOS_XP][NPOS_YP].obj.side,
-					global->pawn_transformation, npos);
+
 		global->board[NPOS_XP][NPOS_YP].obj.type = global->pawn_transformation;
 		global->pawn_transformation = empty;
+		npos_update(global->board, global->board[NPOS_XP][NPOS_YP].obj.side,
+					global->board[NPOS_XP][NPOS_YP].obj.type, npos);
 	} else {
-		global->board[NPOS_XP][NPOS_YP].obj.type =
-			global->board[OPOS_XP][OPOS_YP].obj.type;
+		/* It made for memory optimization (Don't create new buffer variable */
+		global->pawn_transformation = global->board[OPOS_XP][OPOS_YP].obj.type;
+
 		global->board[OPOS_XP][OPOS_YP].obj.type = empty;
 		global->board[OPOS_XP][OPOS_YP].obj.side = none;
+
 		check_hidden_attack(global->board, opos, square_state_upd_by_attacking);
+
+		global->board[NPOS_XP][NPOS_YP].obj.type = global->pawn_transformation;
+		global->pawn_transformation = empty;
 		npos_update(global->board, global->board[NPOS_XP][NPOS_YP].obj.side,
 					global->board[NPOS_XP][NPOS_YP].obj.type, npos);
 		// BUG: If I move my rook he doesn't know about old position
 		// and attacking find loop just find it old position and stop
 	}
 	check_hidden_attack(global->board, npos, square_state_upd_by_leaving);
+	if (global->board[NPOS_XP][NPOS_YP].obj.type == king) {
+		if (global->board[NPOS_XP][NPOS_YP].obj.side == white)
+			global->kpos_w = *npos;
+		else
+			global->kpos_b = *npos;                                  
+	}
+    if (check_on_stalemate_position(global) == 0) {
+		printf("It isn't stalemate\n");
+	} else {
+		printf("It's stalemate\n");
+		global->status = end_stalemate;
+		return 0;
+	}
+
 	return 0;
 }
 
 
-void init_attacking_board(struct square (*board)[8]) {
-	for (uint8_t i = 0; i < 8; ++i) {
-		for (uint8_t j = 0; j < 8; ++j) {
-			uint8_t pos = i*8 + j + 1;
-			npos_update(board, board[i][j].obj.side, board[i][j].obj.type, &pos);
-		}
-	}              
-}
-
-
-static uint8_t check_on_living_shield(struct chess *global, uint8_t *opos,
-                                      uint8_t *npos) {
+static uint8_t
+check_on_living_shield(struct chess *global, uint8_t *opos, uint8_t *npos) {
 	struct chess buffer = *global;
-  
-	if (buffer.board[NPOS_XP][NPOS_YP].obj.type != empty)
-		clean_the_piece_attack(buffer.board, npos); /* clean the enemy attack */
-
-	clean_the_piece_attack(buffer.board, opos);
-	buffer.board[NPOS_XP][NPOS_YP].obj.side =
-		buffer.board[OPOS_XP][OPOS_YP].obj.side;
-	if (buffer.pawn_transformation != empty) {
-		buffer.board[OPOS_XP][OPOS_YP].obj.type = empty;
-		buffer.board[OPOS_XP][OPOS_YP].obj.side = none;
-		check_hidden_attack(buffer.board, opos, square_state_upd_by_attacking);
-		npos_update(buffer.board, buffer.board[NPOS_XP][NPOS_YP].obj.side,
-					buffer.pawn_transformation, npos);
-		buffer.board[NPOS_XP][NPOS_YP].obj.type = buffer.pawn_transformation;
-		buffer.pawn_transformation = empty;
-	} else {
-		buffer.board[NPOS_XP][NPOS_YP].obj.type =
-			buffer.board[OPOS_XP][OPOS_YP].obj.type;
-		buffer.board[OPOS_XP][OPOS_YP].obj.type = empty;
-		buffer.board[OPOS_XP][OPOS_YP].obj.side = none;
-		check_hidden_attack(buffer.board, opos, square_state_upd_by_attacking);
-		npos_update(buffer.board, buffer.board[NPOS_XP][NPOS_YP].obj.side,
-					buffer.board[NPOS_XP][NPOS_YP].obj.type, npos);
-		// BUG: If I move my rook he doesn't know about old position
-		// and attacking find loop just find it old position and stop
-	}
-	check_hidden_attack(buffer.board, npos, square_state_upd_by_leaving);
+	
+	user_move(&buffer, opos, npos);
+	
 	return buffer.board[(buffer.kpos_b - 1) / 8][(buffer.kpos_b - 1) % 8]
 		.w_attack > 0
 		 || buffer.board[(buffer.kpos_w - 1) / 8][(buffer.kpos_w - 1) % 8]
@@ -705,29 +792,40 @@ static uint8_t check_on_living_shield(struct chess *global, uint8_t *opos,
 
 int32_t
 check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos) {
+
+
+	/*
+	*	It's just check the move correctly.
+	*	It can't return end of the game and it'd working only if
+	*	already sure stalemate and checkmate didn't happen
+	*/
 	if (global->board[(global->kpos_b - 1) / 8][(global->kpos_b - 1) % 8]
 		.w_attack > 0) {
-		if (global->board[OPOS_XP][OPOS_YP].obj.type == king &&
-			global->board[NPOS_XP][NPOS_YP].w_attack > 0) {
-			printf("ERROR_KING_MOVE_TO_ATTACKED_SQUARE\n");
-			return ERROR_KING_MOVE_TO_ATTACKED_SQUARE;
+          if (global->board[OPOS_XP][OPOS_YP].obj.type == king &&
+              global->board[NPOS_XP][NPOS_YP].w_attack > 0) {
+			  printf("It's danger square! 1\n");
+			  DEBUG_MSG("ERROR_KING_MOVE_TO_ATTACKED_SQUARE\n");
+			  return ERROR_KING_MOVE_TO_ATTACKED_SQUARE;
 		} else if (check_on_living_shield(global, opos, npos)) {
-			printf("ERROR_USELESS_MOVE_DURING_KING_ATTACK\n");
-			return ERROR_USELESS_MOVE_DURING_KING_ATTACK;
+			  DEBUG_MSG("ERROR_USELESS_MOVE_DURING_KING_ATTACK\n");
+			  printf("Your king underattack! 1\n");                  
+			  return ERROR_USELESS_MOVE_DURING_KING_ATTACK;
 		}
 	} else if (global->board[(global->kpos_w - 1) / 8][(global->kpos_w - 1) % 8]
 			   .b_attack > 0) {
 		if (global->board[OPOS_XP][OPOS_YP].obj.type == king &&
 			global->board[NPOS_XP][NPOS_YP].b_attack > 0) {
-			printf("ERROR_KING_MOVE_TO_ATTACKED_SQUARE\n");
+			DEBUG_MSG("ERROR_KING_MOVE_TO_ATTACKED_SQUARE\n");
+			printf("It's danger square! 2\n");
 			return ERROR_KING_MOVE_TO_ATTACKED_SQUARE;
 		}
 		else if (check_on_living_shield(global, opos, npos)) {
-			printf("ERROR_USELESS_MOVE_DURING_KING_ATTACK\n");
+			DEBUG_MSG("ERROR_USELESS_MOVE_DURING_KING_ATTACK\n");
+			printf("Your king underattack! 2\n");                  
 			return ERROR_USELESS_MOVE_DURING_KING_ATTACK;
 		}
-	}                
-                
+	}
+	
 	if (*opos == *npos)
     {
         printf("ERROR_MINOR_MOVE\n");
@@ -740,10 +838,11 @@ check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos) {
         return ERROR_INPUT_FRIENDLY_ATTACK;
     }
 	
-    if ((get_attack_t(&global->board[OPOS_XP][OPOS_YP]) == both_attacked ||
-         get_attack_t(&global->board[OPOS_XP][OPOS_YP]) ==
-		 (global->user_side == white ? by_black : by_white)) &&
-        check_hidden_king_attack(global, opos))
+    if ((get_attack_t(&global->board[OPOS_XP][OPOS_YP])
+			 == both_attacked
+			|| get_attack_t(&global->board[OPOS_XP][OPOS_YP])
+			 == (global->player_side == white ? by_black : by_white))
+		 && check_hidden_king_attack(global, opos))
     {
         printf("Failure check_correct_of_movement\n");
         return -1;
