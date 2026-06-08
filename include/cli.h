@@ -8,6 +8,8 @@
 #define INVALID_OPTION              0xfb
 #define RELOAD_CODE                 0xfc
 #define CLEAR_CODE 				0xfd
+#define CASTLE_OO_CODE				0xef
+#define CASTLE_OOO_CODE			0xee
 
 #define GET_STANDART_SYMBOL(symb) (32 * (symb < 97)) + symb
 

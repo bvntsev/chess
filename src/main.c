@@ -24,22 +24,24 @@ main (void)
         uint8_t exit_code;
         if (global)
         {
-			global->player_side = black;
+			global->player_side = white;
             global->pawn_transformation = empty;
             global->last_move[0] = 0;
             global->last_move[1] = 0;
 			global->status = session_active;
+			global->castling_flags = 0b1111;
             user_side = &global->player_side;
-            /* create_board(global->board); */
-            set_training_board(global->board,
-                    "KEEEEEEE"
-                    "EEdEEEPE"
-                    "EdEEEPpE"
-                    "EEEEEpEE"
-                    "EEEEEPEn"
-                    "EEEEEpPE"
-                    "EEEEEEpE"
-                    "EEEkEEEE");
+			
+            create_board(global->board);
+            /* set_training_board(global->board, */
+            /*         "EEEEEEEE" */
+            /*         "EEEEEEEE" */
+            /*         "EEEEEEEE" */
+            /*         "EEEEEEEE" */
+            /*         "EKEEEEEE" */
+            /*         "EEEEEEDE" */
+            /*         "kbEEEEED" */
+            /*         "EEEEEEEE"); */
 			global->kpos_b = find_figure(global->board, black, king);
 			global->kpos_w = find_figure(global->board, white, king);
 			if (global->kpos_b == 255 || global->kpos_w == 255) {
@@ -48,7 +50,6 @@ main (void)
 				sleep(3);
 				exit(0);
 			}
-
 			init_attacking_board(global->board);			
             exit_code = CLI_run_session_pvp(global);
         }
@@ -60,10 +61,10 @@ main (void)
                 printf("========RELOADED=======\n");
                 DEBUG_MSG("reloaded cli game");
                 continue;
-			case GAME_STATUS_END_CHECKMATE_BLACK:
-			case GAME_STATUS_END_CHECKMATE_WHITE:
+			case GAME_STATUS_END_BLACK_WIN:
+			case GAME_STATUS_END_WHITE_WIN:
 			case GAME_STATUS_END_STALEMATE:
-				printf("After 5 sec game will close");
+				printf("After 5 sec game will close\n");
 				fflush(stdout);
 				#if DEBUG == 1
         		close_debug_stream();

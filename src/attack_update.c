@@ -114,7 +114,7 @@ knight_pos_update(struct square (*board)[8], enum color_t *side, uint8_t *pos,
 
 			counter += upd_func(&board[POS_XP - 1][POS_YP + 2], side);
         }
-    } 
+    }
 	return counter;
 }
 
@@ -270,6 +270,5 @@ king_pos_update(struct square (*board)[8], enum color_t *side, uint8_t *pos,
 		free_sq += upd_func(&board[POS_XP + 1][POS_YP], side);
 		free_sq += upd_func(&board[POS_XP - 1][POS_YP], side);
 	}
-	printf("free_sq %d\n", free_sq);
 	return free_sq;
 }    

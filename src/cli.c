@@ -155,7 +155,16 @@ input_proc (char *input, char **pos)
 			return CLEAR_CODE;
 		}
         return INVALID_OPTION;
-    }
+    } else if (strncmp(input, "O-O", 3) == 0 || (strncmp(input, "o-o", 3) == 0))
+	{
+		input += 3;
+		if (strncmp(input, "-O", 2) == 0 || (strncmp(input, "-o", 2) == 0)) {
+			printf("CASTLE_OOO_CODE\n");
+			return CASTLE_OOO_CODE;
+		}
+		printf("CASTLE_OO_CODE\n");
+		return CASTLE_OO_CODE;
+	}
     else {
         int8_t len_pos = 0;
         for (uint8_t iter = 0; iter < strlen(input); ++iter) {
@@ -232,10 +241,10 @@ CLI_run_session_pvp (struct chess *global)
     FILE *stream = new_logging(modern_move_logging);
 	#endif
     uint8_t print_flag = 1;
-    void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pve;
+    void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pvp;
     for (; global->status == session_active; ) {
         if (print_flag) {
-            /* printf("\033[2J\033[H"); // DEBUG_HERE */
+            printf("\033[2J\033[H"); // DEBUG_HERE	
             print_board(global->board, &global->player_side);
             /* printf_debug(global->board); */
         } else
@@ -352,13 +361,13 @@ CLI_run_session_pvp (struct chess *global)
 				free(pos);
 				fclose(stream);
 				return -1;
-			}                  
+			}
+
             if (global->board[OPOS_X][OPOS_Y].obj.type == pawn &&
                 ((NPOS_X == 7 &&
                   global->board[OPOS_X][OPOS_Y].obj.side == black) ||
                  (NPOS_X == 0 &&
                   global->board[OPOS_X][OPOS_Y].obj.side == white))) {
-				
 				printf("Write new type of a piece\n");
 				printf("Queen Knight Rook Bishop\n");
 			/* If player missed he got incorrect a piece. Like qishop/bnight */
@@ -394,7 +403,7 @@ CLI_run_session_pvp (struct chess *global)
 				}
 			}
 
-			user_move(global, &opos, &npos);
+			make_new_move(global, &opos, &npos);
 			global->last_move[0] = opos;
 			global->last_move[1] = npos;
 			global->player_side = (global->player_side == white ? black : white);
@@ -426,13 +435,13 @@ CLI_run_session_pvp (struct chess *global)
 		case end_stalemate:
 			printf("===========STALEMATE===========\n");
 			return GAME_STATUS_END_STALEMATE;
-		case finished_by_checkmate_black: {
-			printf("===========BLACK CHECKMATE===========\n");
-			return GAME_STATUS_END_CHECKMATE_BLACK;
+		case winner_black: {
+			printf("===========BLACK WIN===========\n");
+			return GAME_STATUS_END_BLACK_WIN;
 		}
-		case finished_by_checkmate_white: {
-			printf("===========WHITE CHECKMATE===========\n");
-			return GAME_STATUS_END_CHECKMATE_WHITE;
+		case winner_white: {
+			printf("===========WHITE WIN===========\n");
+			return GAME_STATUS_END_WHITE_WIN;
 			}
 	}
     return EXIT_CODE;

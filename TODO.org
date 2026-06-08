@@ -38,8 +38,9 @@ DONE 5/24/26
 Maybe it'd machine learning or something looks like AI  
 At first choose bots/alghoritm
 ** DONE Pawn transformation to other type of a piece
-** TODO DRAW 
-** TODO King CHECK
+** IN-PROGRESS DRAW
+** DONE King CHECK
+** IN-PROGRESS Castle
 * BUGS
 ** DONE BUG infinity increase horizontal and vertical ROOK ( in the while )
 If I move rook in same horizontal or verical The squares will be infinity increase
@@ -48,6 +49,9 @@ This functions called npos_update and check_hidden_attack
 ( New to add the additional conditions for check_hidden_attack I guess)
 ** TODO Name of file and log file aren't equal (sometimes, dependent by state and OS)
 The time is shown incorrectly. (UTC I guess, not local)
+** DONE check_hidden_king_attack
+If piece has hidden_king_attack and try to move in attacking line or
+destroy a enemy piece which attacking this line get error
 * notes
 Проверка для opos клетки на наличие диагональных/горизонтальных/вертикальных
 фигур любой команды, если такие есть, то обновляется их линия на атаку.

@@ -22,10 +22,10 @@ enum attack_t
 
 enum game_status
 {
-	session_active = 0x01,
-	finished_by_checkmate_black = 0x02,
-	finished_by_checkmate_white = 0x03,
-	end_stalemate = 0x04
+	session_active = 	0x01,
+	winner_black = 	0x02,
+	winner_white = 	0x03,
+	end_stalemate = 	0x04
 };
 
 enum action_t
@@ -51,8 +51,15 @@ struct square
  // It needs for optimization of after move alghoritm
 };
 
+enum {
+    WHITE_OO  = 1 << 0, // 0001
+    WHITE_OOO = 1 << 1, // 0010
+    BLACK_OO  = 1 << 2, // 0100
+    BLACK_OOO = 1 << 3  // 1000
+};
 
 struct chess {
+	uint8_t			castling_flags;
 	uint8_t 			kpos_w;
 	uint8_t 			kpos_b;
     uint8_t 			last_move[2];
@@ -60,7 +67,6 @@ struct chess {
 	enum color_t 		player_side;
 	enum game_status	status;
 	struct square 		board[8][8];
-
 };
 
 struct square *

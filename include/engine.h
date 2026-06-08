@@ -6,8 +6,8 @@
 #define USER_INPUT_LEN 10
 
 #define GAME_STATUS_SESSION_ACTIVE              0x01
-#define GAME_STATUS_END_CHECKMATE_BLACK         0x02
-#define GAME_STATUS_END_CHECKMATE_WHITE         0x03
+#define GAME_STATUS_END_BLACK_WIN         		0x02
+#define GAME_STATUS_END_WHITE_WIN         		0x03
 #define GAME_STATUS_END_STALEMATE               0x04
 
 #define ERROR_INPUT_ABSENT_PIECES               0x05
@@ -47,7 +47,7 @@
 
 #define ERROR_USELESS_MOVE_DURING_KING_ATTACK	0x1e
 
-#define RULE_TURN_ORDER 0
+#define RULE_TURN_ORDER 1
 #define RULE_NON_EMPTY_PIECE_MOVED 1
 
 
@@ -73,7 +73,7 @@
 struct chess;
 
 uint8_t
-user_move (struct chess *global, unsigned char *opos, unsigned char *npos);
+make_new_move (struct chess *global, unsigned char *opos, unsigned char *npos);
 
 int32_t
 check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos);
