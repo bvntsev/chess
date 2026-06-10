@@ -47,6 +47,10 @@
 
 #define ERROR_USELESS_MOVE_DURING_KING_ATTACK	0x1e
 
+#define ERROR_CASTLE_ISNT_AVAILABLE			0x1f
+#define ERROR_CASTLE_ROOK_IS_BLOCKED			0x20
+
+#define ERROR_KING_UNDER_ATTACK				0x21
 #define RULE_TURN_ORDER 1
 #define RULE_NON_EMPTY_PIECE_MOVED 1
 
@@ -81,5 +85,10 @@ check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos);
 void
 init_attacking_board(struct square (*board)[8]);
 
+uint8_t
+check_castle_OO(struct chess *global);
+
+uint8_t
+check_castle_OOO(struct chess *global);
 
 #endif // ENGINE_H

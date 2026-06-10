@@ -31,17 +31,16 @@ main (void)
 			global->status = session_active;
 			global->castling_flags = 0b1111;
             user_side = &global->player_side;
-			
             create_board(global->board);
             /* set_training_board(global->board, */
+            /*         "DEEEKEEE" */
+            /*         "EEEEEEEE" */
+            /*         "EEEEnEEE" */
+            /*         "EbEEdEEE" */
             /*         "EEEEEEEE" */
             /*         "EEEEEEEE" */
             /*         "EEEEEEEE" */
-            /*         "EEEEEEEE" */
-            /*         "EKEEEEEE" */
-            /*         "EEEEEEDE" */
-            /*         "kbEEEEED" */
-            /*         "EEEEEEEE"); */
+            /*         "EEEEkEEE"); */
 			global->kpos_b = find_figure(global->board, black, king);
 			global->kpos_w = find_figure(global->board, white, king);
 			if (global->kpos_b == 255 || global->kpos_w == 255) {

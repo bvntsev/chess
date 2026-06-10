@@ -244,9 +244,10 @@ CLI_run_session_pvp (struct chess *global)
     void (*print_board)(struct square (*)[8], enum color_t *) = print_board_pvp;
     for (; global->status == session_active; ) {
         if (print_flag) {
-            printf("\033[2J\033[H"); // DEBUG_HERE	
+            printf("\033[2J\033[H"); // DEBUG_HERE
             print_board(global->board, &global->player_side);
             /* printf_debug(global->board); */
+			/* printf("bits %d\n", global->castling_flags); */
         } else
           print_flag = 1;
         char *user_input = NULL;
@@ -311,6 +312,44 @@ CLI_run_session_pvp (struct chess *global)
 				print_flag = 0;                                
 				continue;
 			}
+			case CASTLE_OO_CODE:
+			{
+				if (check_castle_OO(global) == 0) {
+					free(user_input);
+					free(pos);
+					global->last_move[0] = 0;
+					global->last_move[1] = 0;
+					global->player_side = (global->player_side == white
+											? black : white);
+					continue;
+				}
+				else {
+					printf("Castle isn't available\n");
+					free(user_input);
+					free(pos);
+					print_flag = 0;
+					continue;
+				}
+			}
+			case CASTLE_OOO_CODE:
+			{
+				if (check_castle_OOO(global) == 0) {
+					free(user_input);
+					free(pos);
+					global->last_move[0] = 0;
+					global->last_move[1] = 0;
+					global->player_side = (global->player_side == white
+											? black : white);
+					continue;
+				}
+				else {
+					printf("Castle isn't available\n");
+					free(user_input);
+					free(pos);
+					print_flag = 0;
+					continue;
+				}
+			}
 			default:
 			{
 				perror("Specific case. Check --help\n");
@@ -350,7 +389,7 @@ CLI_run_session_pvp (struct chess *global)
 				fprintf(stderr, "Invalid move\n");
 				free(user_input);
 				free(pos);
-				print_flag = 0;                                
+				print_flag = 0;
 				continue;
 
 			}
@@ -427,6 +466,14 @@ CLI_run_session_pvp (struct chess *global)
         }
     }
     fclose(stream);
+	if (print_flag) {
+        printf("\033[2J\033[H"); // DEBUG_HERE
+        print_board(global->board, &global->player_side);
+        /* printf_debug(global->board); */
+		/* printf("bits %d\n", global->castling_flags); */
+    } else
+		print_flag = 1;
+
 	printf("===========GAME IS FINISHED===========\n");
 	switch (global->status) {
 		case session_active:

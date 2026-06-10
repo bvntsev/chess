@@ -229,7 +229,7 @@ check_pawn_move (struct chess *global, uint8_t *opos, uint8_t *npos)
     {
         if (abs(OPOS_YP - NPOS_YP) > 1 || abs(OPOS_XP - NPOS_XP) > 1)
         {
-            printf("ERROR_PAWN_ILLEGAL_DIAGONAL_ATTACK");
+            DEBUG_MSG("ERROR_PAWN_ILLEGAL_DIAGONAL_ATTACK");
             return ERROR_PAWN_ILLEGAL_DIAGONAL_ATTACK;
         }
         if (global->board[NPOS_XP][NPOS_YP].obj.type == empty)
@@ -249,7 +249,7 @@ check_pawn_move (struct chess *global, uint8_t *opos, uint8_t *npos)
 						return 0;
 					}                    
             }
-            printf("ERROR_PAWN_ATTACK_EMPTY_SQUARE");
+            DEBUG_MSG("ERROR_PAWN_ATTACK_EMPTY_SQUARE");
             return ERROR_PAWN_ATTACK_EMPTY_SQUARE;
         }
     }
@@ -888,10 +888,28 @@ make_new_move(struct chess *global, uint8_t *opos, uint8_t *npos) {
 	}
 	check_hidden_attack(global->board, npos, square_state_upd_by_leaving);
 	if (global->board[NPOS_XP][NPOS_YP].obj.type == king) {
-		if (global->board[NPOS_XP][NPOS_YP].obj.side == white)
+		if (global->board[NPOS_XP][NPOS_YP].obj.side == white) {
 			global->kpos_w = *npos;
-		else
-			global->kpos_b = *npos;                                  
+			global->castling_flags &= 0b1100;
+			}
+		else {
+			global->kpos_b = *npos;
+			global->castling_flags &= 0b0011;
+		}
+	}
+	if (global->board[NPOS_XP][NPOS_YP].obj.type == rook) {
+		if (global->board[NPOS_XP][NPOS_YP].obj.side == white) {
+			if (OPOS_XP == 7 && OPOS_YP == 7)
+				global->castling_flags &= (WHITE_OO ^ 0b1111);
+			else if (OPOS_XP == 7 && OPOS_YP == 0)
+				global->castling_flags &= (WHITE_OOO ^ 0b1111);
+			}
+		else {
+			if (OPOS_XP == 0 && OPOS_YP == 7)
+				global->castling_flags &= (BLACK_OO ^ 0b1111);
+			else if (OPOS_XP == 0 && OPOS_YP == 0)
+				global->castling_flags &= (BLACK_OOO ^ 0b1111);
+		}
 	}
 	if (check_on_stalemate_position(global, global->board[NPOS_XP][NPOS_YP]
 								.obj.side == white ? black : white) != 0)
@@ -979,3 +997,115 @@ check_correct_of_movement (struct chess *global, uint8_t *opos, uint8_t *npos) {
     
     return is_this_movement_correct(global, opos, npos);
 }
+
+static void
+castle_update(struct chess *global, uint8_t *kpos, uint8_t *rpos, uint8_t type)
+{
+	clean_the_piece_attack(global->board, rpos);
+	clean_the_piece_attack(global->board, kpos);
+	/* type means OO or OOO castling. OO is 2, OOO is 3 */
+	/* Not safely, but works. Only certain type argument */
+	uint8_t nkpos;
+	uint8_t nrpos;
+	if (type == 2) {
+		nkpos = *kpos + 2;
+		nrpos = *rpos - 2;
+	} else {
+		nkpos = *kpos - 2;
+		nrpos = *rpos + 3;
+	}
+	global->board[(*kpos - 1) / 8][(*kpos - 1) % 8].obj.type = empty;
+	global->board[(*kpos - 1) / 8][(*kpos - 1) % 8].obj.side = none;
+	global->board[(*rpos - 1) / 8][(*rpos - 1) % 8].obj.type = empty;
+	global->board[(*rpos - 1) / 8][(*rpos - 1) % 8].obj.side = none;
+
+	global->board[(nkpos - 1) / 8][(nkpos - 1) % 8].obj.type = king;
+	global->board[(nkpos - 1) / 8][(nkpos - 1) % 8].obj.side =
+															global->player_side;
+	npos_update(global->board, global->player_side, king, &nkpos);
+	global->board[(nrpos - 1) / 8][(nrpos - 1) % 8].obj.type = rook;
+	global->board[(nrpos - 1) / 8][(nrpos - 1) % 8].obj.side =
+															global->player_side;
+	npos_update(global->board, global->player_side, rook, &nrpos);
+
+	if (check_on_stalemate_position(global, global->player_side
+										== white ? black : white) != 0)
+		global->status = end_stalemate;
+	else if (check_on_checkmate_position(global, global->player_side
+										== white ? black : white, &nrpos) != 0)
+		global->status = global->player_side
+										== white ? winner_white : winner_black;
+}
+
+
+#define BOARD global->board
+uint8_t
+check_castle_OO(struct chess *global) {
+	switch (global->player_side) {
+	case white: {
+		if ((global->castling_flags & WHITE_OO) == 0)
+			return ERROR_CASTLE_ISNT_AVAILABLE;
+		if ( BOARD[7][5].obj.type != empty || BOARD[7][6].obj.type != empty
+		  || BOARD[7][5].b_attack > 0      || BOARD[7][6].b_attack > 0)
+			return ERROR_CASTLE_ROOK_IS_BLOCKED;
+		if (BOARD[7][4].b_attack > 0)
+			return ERROR_KING_UNDER_ATTACK;
+		uint8_t rpos = 64;
+		/* It doesn't work. Need to fix (castle update)*/
+		castle_update(global, &global->kpos_w, &rpos, 2);
+		global->castling_flags &= 0b1100;
+		break;
+		}
+	case black: {
+		if ((global->castling_flags & BLACK_OO) == 0)
+			return ERROR_CASTLE_ISNT_AVAILABLE;
+		if ((BOARD[0][5].obj.type != empty || BOARD[0][6].obj.type != empty
+		  || BOARD[0][5].w_attack > 0      || BOARD[0][6].w_attack > 0))
+			return ERROR_CASTLE_ROOK_IS_BLOCKED;
+		if (BOARD[0][4].w_attack > 0)
+			return ERROR_KING_UNDER_ATTACK;
+		uint8_t rpos = 8;
+		castle_update(global, &global->kpos_b, &rpos, 2);
+		global->castling_flags &= 0b0011;
+		break;
+		}
+	}
+	return 0;
+}
+
+
+uint8_t
+check_castle_OOO(struct chess *global) {
+	printf("OOO\n");
+	switch (global->player_side) {
+	case white: {
+			if ((global->castling_flags & WHITE_OOO) == 0)
+				return ERROR_CASTLE_ISNT_AVAILABLE;
+			if ( BOARD[7][1].obj.type != empty || BOARD[7][1].b_attack > 0
+			  || BOARD[7][2].obj.type != empty || BOARD[7][2].b_attack > 0
+			  || BOARD[7][3].obj.type != empty || BOARD[7][3].b_attack > 0)
+				return ERROR_CASTLE_ROOK_IS_BLOCKED;
+			if (BOARD[7][4].b_attack > 0)
+				return ERROR_KING_UNDER_ATTACK;
+			uint8_t rpos = 57;
+			castle_update(global, &global->kpos_w, &rpos, 3);
+			global->castling_flags &= 0b1100;
+			break;
+		}
+	case black: {
+			if ((global->castling_flags & BLACK_OOO) == 0)
+				return ERROR_CASTLE_ISNT_AVAILABLE;
+			if ( BOARD[0][1].obj.type != empty || BOARD[0][1].w_attack > 0
+			  || BOARD[0][2].obj.type != empty || BOARD[0][2].w_attack > 0
+			  || BOARD[0][3].obj.type != empty || BOARD[0][3].w_attack > 0)
+				return ERROR_CASTLE_ROOK_IS_BLOCKED;
+			if (BOARD[0][4].b_attack > 0)
+				return ERROR_KING_UNDER_ATTACK;
+			uint8_t rpos = 1;
+			castle_update(global, &global->kpos_w, &rpos, 3);
+			global->castling_flags &= 0b0011;
+		}
+	}
+	return 0;
+}
+#undef BOARD

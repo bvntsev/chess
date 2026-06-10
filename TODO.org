@@ -38,7 +38,8 @@ DONE 5/24/26
 Maybe it'd machine learning or something looks like AI  
 At first choose bots/alghoritm
 ** DONE Pawn transformation to other type of a piece
-** IN-PROGRESS DRAW
+** DONE CHECKMATE
+** DONE DRAW
 ** DONE King CHECK
 ** IN-PROGRESS Castle
 * BUGS
@@ -60,3 +61,4 @@ destroy a enemy piece which attacking this line get error
 очистить клетки за конём и добавить новую атаку перед конём, иначе утечка
 атаки.
 Когда бьешь фигуру нужно удалять клетки, которая она до этого била
+** check what happen if I try make hidden check when I attacking
