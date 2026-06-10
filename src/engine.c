@@ -1102,7 +1102,7 @@ check_castle_OOO(struct chess *global) {
 			if (BOARD[0][4].b_attack > 0)
 				return ERROR_KING_UNDER_ATTACK;
 			uint8_t rpos = 1;
-			castle_update(global, &global->kpos_w, &rpos, 3);
+			castle_update(global, &global->kpos_b, &rpos, 3);
 			global->castling_flags &= 0b0011;
 		}
 	}

@@ -41,8 +41,9 @@ At first choose bots/alghoritm
 ** DONE CHECKMATE
 ** DONE DRAW
 ** DONE King CHECK
-** IN-PROGRESS Castle
+** DONE Castle
 * BUGS
+** If rook would beated without moves my castling_flags wouldn't updated. FIX! 
 ** DONE BUG infinity increase horizontal and vertical ROOK ( in the while )
 If I move rook in same horizontal or verical The squares will be infinity increase
 Because two functions increase _attack parameter in the same time.
@@ -61,4 +62,3 @@ destroy a enemy piece which attacking this line get error
 очистить клетки за конём и добавить новую атаку перед конём, иначе утечка
 атаки.
 Когда бьешь фигуру нужно удалять клетки, которая она до этого била
-** check what happen if I try make hidden check when I attacking
