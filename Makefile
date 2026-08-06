@@ -8,8 +8,8 @@ builddir = build
 DEFS =
 
 CDEBUG = -g -Wall -Wextra -O3
-CFLAGS = $(CDEBUG) -I$(includedir) -I$(srcdir) $(DEFS)
-LDFLAGS = -g
+CFLAGS = $(CDEBUG) -I$(includedir) -I$(srcdir) $(DEFS) $(shell pkg-config --cflags sdl2)
+LDFLAGS = -g $(shell pkg-config --libs sdl2)
 
 OBJS = \
 	$(builddir)/cli.o \

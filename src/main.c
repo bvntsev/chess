@@ -6,7 +6,7 @@
 #include "../include/engine.h"
 #include "../include/cli.h"
 #include "../include/logging.h"
-
+#include "../include/gui.h"
 
 enum color_t *user_side;
 // int32_t
@@ -15,7 +15,8 @@ enum color_t *user_side;
 int32_t
 main (void)
 {
-
+	gui_init(NULL);
+	return 0;
     DEBUG_MSG("New main start");
     for (;;)
     {
@@ -49,8 +50,9 @@ main (void)
 				sleep(3);
 				exit(0);
 			}
-			init_attacking_board(global->board);			
-            exit_code = CLI_run_session_pvp(global);
+			init_attacking_board(global->board);
+			exit_code = gui_init(global);
+            /* exit_code = CLI_run_session_pvp(global); */
         }
         free(global);
         switch (exit_code) {
