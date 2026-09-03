@@ -54,6 +54,9 @@
 #define RULE_TURN_ORDER 1
 #define RULE_NON_EMPTY_PIECE_MOVED 1
 
+#define ERROR_CLI_INCORRECT_INPUT_MODE			0x22;
+
+#define ERROR_GUI_WINDOW_INIT					0x23
 
 /* old pos */
 #define OPOS_X  (opos - 1)  / 8

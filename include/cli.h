@@ -14,6 +14,7 @@
 #define GET_STANDART_SYMBOL(symb) (32 * (symb < 97)) + symb
 
 struct chess;
-uint8_t CLI_run_session_pvp(struct chess *global);
+
+uint8_t (*cli_start_menu())(struct chess *global);
 
 #endif // CLI_H

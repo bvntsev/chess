@@ -1,4 +1,5 @@
 /* parsing input, display, output */
+
 #ifdef __STDC_ALLOC_LIB__
 #define __STDC_WANT_LIB_EXT2__ 1
 #else
@@ -235,7 +236,7 @@ void printf_debug(struct square (*board)[8]) {
 
 
 uint8_t 
-CLI_run_session_pvp (struct chess *global)
+cli_start_pvp_one_device (struct chess *global)
 {
 	#if DEBUG == 1
     FILE *stream = new_logging(modern_move_logging);
@@ -492,4 +493,29 @@ CLI_run_session_pvp (struct chess *global)
 			}
 	}
     return EXIT_CODE;
+}
+
+uint8_t (*cli_start_menu())(struct chess *global) {
+	printf(
+		" ________________________\n"
+		"|Choose game mode\t|\n"
+		"|1. pvp on one device\t|\n"
+		"|2. pvp in local network|\n"
+		"|3. player vs bot\t|\n"
+		" ________________________\n"
+	);
+	int32_t in = getchar();
+	int32_t pass_err_symb;
+	while ((pass_err_symb = getchar()) != '\n' && pass_err_symb != EOF) {}
+	new_debug_record("cli %c mode\n", in);
+	switch (in) {
+		case ('1'):
+			return cli_start_pvp_one_device;
+		case ('2'):
+		case ('3'):
+		case (EOF):
+		default:
+			printf("Incorrect input");
+			return NULL;
+	}
 }

@@ -2,6 +2,7 @@
 # === config ===
 
 CC = gcc
+BIN_NAME = bvchess
 srcdir = ./src
 includedir = ./include
 builddir = build
@@ -24,7 +25,7 @@ OBJS = \
 OBJSDIR = $(addprefix $(builddir)/,$(OBJS))
 
 all: $(builddir) $(OBJS)
-	$(CC) $(LDFLAGS) -o $(builddir)/chess $(OBJS)
+	$(CC) -o $(builddir)/$(BIN_NAME) $(OBJS) $(LDFLAGS)
 
 $(builddir):
 	mkdir -p $(builddir)
@@ -39,32 +40,35 @@ clean:
 	rm -f $(builddir)/*
 
 run:
-	./build/chess
+	SDL_VIDEODRIVER=x11 ./build/$(BIN_NAME)
 
 debug_all: clean all debug
 
 debug:
-	gdb ./build/chess
+	gdb ./build/$(BIN_NAME)
 
 debug_all_konsole: clean all
-	konsole -e gdb ./build/chess
+	konsole -e gdb ./build/$(BIN_NAME)
 
 valgrind_all_konsole: clean all
-	konsole -e valgrind ./build/chess
+	konsole -e valgrind ./build/$(BIN_NAME)
 
 valgrind_all: clean all valgrind
 
 valgrind:
-	valgrind ./build/chess
+	valgrind ./build/$(BIN_NAME)
 
 rm_log_files:
 	rm -f ~/.local/share/bvchess/*.log
 
 konsole:
-	konsole -e ./build/chess
+	konsole -e ./build/$(BIN_NAME)
 
 konsole_all: all
-	konsole -e ./build/chess
-
+	konsole -e SDL_VIDEODRIVER=x11 ./build/$(BIN_NAME)
+konsole_all_gui: all
+	konsole -e SDL_VIDEODRIVER=x11 ./build/$(BIN_NAME) gui
+konsole_all_cli: all
+	konsole -e ./build/$(BIN_NAME) cli
 clear:
 	clear

@@ -847,12 +847,6 @@ check_on_stalemate_position(struct chess *global, enum color_t side)
 
 uint8_t
 make_new_move(struct chess *global, uint8_t *opos, uint8_t *npos) {
-	/* Firstly If new pos was taken by someone else than clean enemy attacked
-	   squares. Than I update by new figure this square ( just update new pos and
-	   update each squares on new attacking by this a figure. Than I update old
-	   square. Delete old attacked squares and update for hidden attack squares.
-	   Like 2 rocks in horizontal and one change his position in on vertical. So
-	   attack in square doesn't change */
 	if (global->board[NPOS_XP][NPOS_YP].obj.type != empty)
 		clean_the_piece_attack(global->board, npos); /* clean the enemy attack */
 

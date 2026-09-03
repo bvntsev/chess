@@ -22,6 +22,8 @@ new_logging (enum logging_t type)
     struct passwd *pd = getpwuid(getuid());
 
     FILE *stream = NULL;
+
+	// ERROR: Incorrect time lol =)
     switch (type) {
         case debugging: {
             if (strftime(date, sizeof date, "%F %H-%M-%S.log",
