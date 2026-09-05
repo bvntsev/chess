@@ -107,7 +107,7 @@ main (int32_t argc, char *argv[]) {
 			case GAME_STATUS_END_WHITE_WIN:
 			case GAME_STATUS_END_STALEMATE:
 			case CORRECT_GUI_EXIT_CODE:
-				printf("After 0 sec game will close\n");
+				printf("After 0 sec game will be closed\n");
 				fflush(stdout);
 				#if DEBUG == 1
         		close_debug_stream();

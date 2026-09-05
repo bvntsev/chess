@@ -57,6 +57,9 @@
 #define ERROR_CLI_INCORRECT_INPUT_MODE			0x22;
 
 #define ERROR_GUI_WINDOW_INIT					0x23
+#define ERROR_GUI_WINDOW_CREATION				0x24
+#define ERROR_GUI_RENDERER_CREATION			0x25
+#define ERROR_GUI_SURFACE_CREATION				0x26
 
 /* old pos */
 #define OPOS_X  (opos - 1)  / 8
