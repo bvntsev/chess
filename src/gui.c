@@ -7,6 +7,7 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_types.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_image.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -35,13 +36,33 @@ static uint8_t gui_start_pvp_one_device(struct chess *global) {
 }
 
 
-static struct button create_button(int32_t x, int32_t y) {
+static char *get_path_to_texture(char *file_name) {
+	char *rp = get_rp_to_chess_dir();
+	char *texturePath;
+	asprintf(&texturePath, "%s/%s", rp, file_name);
+	free(rp);
+	return texturePath;
+}
+
+
+static struct button create_button(int32_t x, int32_t y,
+				SDL_Renderer *renderer, char *file_name) {
 	struct button bt;
 	bt.isHighlighted = SDL_FALSE;
 	bt.rect.x = x;
 	bt.rect.y = y;
 	bt.rect.w = BUTTON_MENU_WIDTH;
 	bt.rect.h = BUTTON_MENU_HEIGHT;
+
+	char *texturePath = get_path_to_texture(file_name);
+	bt.idleButton = IMG_LoadTexture(renderer, texturePath);
+	free(texturePath);
+
+	if (bt.idleButton == NULL) {
+		printf("SDL_IMG_LoadTexture error: %s\n", SDL_GetError());
+	}
+	/* bt.hgButton = IMG_LoadTexture(renderer, path_to_hg); */
+
 	return bt;
 }
 
@@ -50,6 +71,11 @@ static SDL_bool is_under_mcursor(int32_t x_cursor, int32_t y_cursor,
 			int32_t x_obj, int32_t y_obj, int32_t w_obj, int32_t h_obj) {
 	return (x_cursor >= x_obj && x_cursor <= (x_obj + w_obj))
 			&& (y_cursor >= y_obj && y_cursor <= (y_obj + h_obj));
+}
+
+
+static void load_board(SDL_Window *window) {
+	
 }
 
 
@@ -95,14 +121,17 @@ uint8_t gui_start_menu(struct chess *global) {
 	/* 	SDL_Quit(); */
 	/* 	return ERROR_GUI_SURFACE_CREATION; */
 	/* } */
-	struct button pvp_one_device_button =
-									create_button(WINDOW_WIDTH / 2 - 50, 300);
-	struct button pvp_local_button = create_button(WINDOW_WIDTH / 2 - 50, 350);
-	struct button pvp_bot_button = create_button(WINDOW_WIDTH /  2 - 50, 450);
+	struct button pvp_one_device_button = create_button(
+			WINDOW_WIDTH / 2 - 100, 500, renderer, "pvp_1d.png");
+	struct button pvp_local_button = create_button(WINDOW_WIDTH / 2 - 100, 600,
+			renderer, "pvp_2p.png");
+	struct button pvp_bot_button = create_button(WINDOW_WIDTH /  2 - 100, 700,
+			renderer, "pvp_ai.png");
 	/* struct button exit_button = create_button(WINDOW_WIDTH / 2 - 50, 500); */
-	struct button exit_button = create_button(350, 500);
+	struct button exit_button = create_button(400, 800,
+			renderer, "exit.png");
 	/* struct button exit_button = create_button(WINDOW_WIDTH / 2 - BUTTON_MENU_WIDTH / 2, 300); mehh*/
-	
+	SDL_RenderSetLogicalSize(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
 	
 	uint8_t is_running = 1;
 	while (is_running) {
@@ -125,27 +154,20 @@ uint8_t gui_start_menu(struct chess *global) {
 				is_running = 0;
 			}
 		}
-		/* SDL_FillRect( */
-		/* SDL_Surface *surface = SDL_CreateRGBSurface(0, 300, 100, 32, 0, 0, 0, 0); */
-
-		// Throughout surface
-		/* SDL_Surface *surface = SDL_GetWindowSurface(window); */
-
-		/* uint32_t rgb = SDL_MapRGB(surface->format, 255, 255, 255); */
-		/* SDL_FillRect(surface, &exit_button.rect, rgb); */
-
-		/* SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface); */
-		/* SDL_UpdateWindowSurface(window); */
-		/* SDL_FreeSurface(surface); */
 		SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 		SDL_RenderClear(renderer);
-		
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+		SDL_RenderCopy(renderer, exit_button.idleButton, NULL, &exit_button.rect);
+		SDL_RenderCopy(renderer, pvp_bot_button.idleButton, NULL, &pvp_bot_button.rect);
+		SDL_RenderCopy(renderer, pvp_local_button.idleButton, NULL, &pvp_local_button.rect);
+		SDL_RenderCopy(renderer, pvp_one_device_button.idleButton, NULL, &pvp_one_device_button.rect);
+
+		/* SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); */
 
 
-		SDL_RenderFillRect(renderer, &exit_button.rect);
+		/* SDL_RenderFillRect(renderer, &exit_button.rect); */
 		
-		/* SDL_RenderCopy(renderer, texture, NULL, &exit_button.rect); */
+		/* sdl_RenderCopy(renderer, texture, NULL, &exit_button.rect); */
 		/* SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); */
 
 		SDL_RenderPresent(renderer);

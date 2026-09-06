@@ -9,8 +9,8 @@ builddir = build
 DEFS =
 
 CDEBUG = -g -Wall -Wextra -O3
-CFLAGS = $(CDEBUG) -I$(includedir) -I$(srcdir) $(DEFS) $(shell pkg-config --cflags sdl2)
-LDFLAGS = -g $(shell pkg-config --libs sdl2)
+CFLAGS = $(CDEBUG) -I$(includedir) -I$(srcdir) $(DEFS) -I/usr/include/SDL2 $(shell pkg-config --cflags sdl2) -lSDL2_image
+LDFLAGS = -g $(shell pkg-config --libs sdl2) -lSDL2_image
 
 OBJS = \
 	$(builddir)/cli.o \
@@ -24,7 +24,7 @@ OBJS = \
 
 OBJSDIR = $(addprefix $(builddir)/,$(OBJS))
 
-all: $(builddir) $(OBJS)
+all: $(builddir) $(OBJS) cp_textures
 	$(CC) -o $(builddir)/$(BIN_NAME) $(OBJS) $(LDFLAGS)
 
 $(builddir):
@@ -72,3 +72,6 @@ konsole_all_cli: all
 	konsole -e ./build/$(BIN_NAME) cli
 clear:
 	clear
+
+cp_textures:
+	cp Textures/* ~/.local/share/bvchess/

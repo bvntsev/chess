@@ -28,4 +28,6 @@ int32_t close_debug_stream();
 #endif
 
 
+char *get_rp_to_chess_dir();
+
 #endif // LOGGING_H

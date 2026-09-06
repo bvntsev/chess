@@ -61,6 +61,9 @@
 #define ERROR_GUI_RENDERER_CREATION			0x25
 #define ERROR_GUI_SURFACE_CREATION				0x26
 
+#define ERROR_IMPOSSIBLE_RESULT				0x27
+
+
 /* old pos */
 #define OPOS_X  (opos - 1)  / 8
 #define OPOS_Y  (opos - 1)  % 8

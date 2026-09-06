@@ -6,13 +6,14 @@
 #include <SDL2/SDL_types.h>
 #include <SDL2/SDL_render.h>
 
+
 struct chess;
 
-#define WINDOW_WIDTH		800
-#define WINDOW_HEIGHT		640
+#define WINDOW_WIDTH		1000
+#define WINDOW_HEIGHT		1000
 
-#define BUTTON_MENU_WIDTH		150
-#define BUTTON_MENU_HEIGHT		40
+#define BUTTON_MENU_WIDTH		200
+#define BUTTON_MENU_HEIGHT		80
 
 
 #define CORRECT_GUI_EXIT_CODE		0xed
@@ -22,6 +23,15 @@ uint8_t gui_start_menu(struct chess *global);
 struct button {
 	SDL_Rect rect;
 	SDL_bool isHighlighted;
+	SDL_Texture *idleButton;
+	SDL_Texture *hgButton;
+};
+
+struct chess;
+
+struct gui_chess {
+	struct chess *engine;
+	
 };
 
 #endif /* GUI_H */

@@ -13,13 +13,41 @@
 extern enum color_t *user_side;
 
 
+char *get_uname () {
+	struct passwd *pd = getpwuid(getuid());
+	return pd->pw_dir;
+}
+
+
+char *get_rp_to_chess_dir() {
+    char *directory;
+    if (asprintf(&directory, "%s/.local/share/bvchess", get_uname()) == -1) {
+        free(directory);
+        return NULL;
+    }
+    char *rp;
+    if (!(rp = realpath(directory, NULL))) {
+        if (mkdir(directory, 0755) != 0) {
+            free(rp);
+            free(directory);
+            perror("Error: can't create logging directory\n");
+            return NULL;
+        }
+        free(rp);
+        free(directory);
+        return get_rp_to_chess_dir();
+    }
+	free(directory);
+	return rp;
+}
+
+
 FILE *
 new_logging (enum logging_t type)
 {
     struct timespec ts;
     timespec_get(&ts, TIME_UTC);
     char date[255];
-    struct passwd *pd = getpwuid(getuid());
 
     FILE *stream = NULL;
 
@@ -40,28 +68,11 @@ new_logging (enum logging_t type)
                 return NULL;
         }
     }
-    char *directory;
-    if (asprintf(&directory, "%s/.local/share/bvchess", pd->pw_dir) == -1) {
-        free(directory);
-        return NULL;
-    }
-    char *rp;
-    if (!(rp = realpath(directory, NULL))) {
-        if (mkdir(directory, 0755) != 0) {
-            free(rp);
-            free(directory);
-            perror("Error: can't create logging directory\n");
-            return NULL;
-        }
-        free(rp);
-        free(directory);
-        return new_logging(type);
-    }
+	char *rp = get_rp_to_chess_dir();
     char *full_name;
-    if (asprintf(&full_name, "%s/%s", directory ,date) == -1) {
+    if (asprintf(&full_name, "%s/%s", rp, date) == -1) {
         free(full_name);
         free(rp);
-        free(directory);
         return NULL;
     }
     else {
@@ -69,7 +80,6 @@ new_logging (enum logging_t type)
     }
     free(full_name);
     free(rp);
-    free(directory);
     return stream;
 }
 

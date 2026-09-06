@@ -1063,6 +1063,8 @@ check_castle_OO(struct chess *global) {
 		global->castling_flags &= 0b0011;
 		break;
 		}
+	case none:
+		return ERROR_IMPOSSIBLE_RESULT;
 	}
 	return 0;
 }
