@@ -5,4 +5,7 @@
 Usage: bvchess [MODE]  
 [MODE] devided at 2 types: gui and cli  
 It allows run chess menu in your category  
-If you don't chose one of this chess's will launch gui menu
+If you don't chose one of this chess's will launch gui menu  
+  
+## Thank you  
+Chess piece pixel art by Lucas312, used under CC BY-SA 3.0

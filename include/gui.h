@@ -28,10 +28,26 @@ struct button {
 };
 
 struct chess;
+struct piece;
 
-struct gui_chess {
+struct guiPiece {
+	SDL_bool is_highlighted;
+	SDL_Rect pos;
+	SDL_Texture *texture;
+};
+
+
+struct active_figure {
+	struct piece *obj;
+	struct guiPiece *gui;
+};
+
+
+struct guiChess {
 	struct chess *engine;
-	
+	struct guiPiece guiBoard[8][8];
+	struct active_;
+	/* time_t dtime; // timer? */
 };
 
 #endif /* GUI_H */
