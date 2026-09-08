@@ -1,5 +1,6 @@
 #include "../include/util.h"
 
+#include <stdio.h>
 /* static void printf_binary(char *value) { */
 /*     for (int i = 7; i >= 0; --i) */
 /*         printf("%i", ((1 << i) & (*value)) >> i); */
@@ -22,6 +23,16 @@
 /*     } */
 /*     PRINT_DASH */
 /* }; */
+
+
+void
+print_square_info(struct square *sq) {
+	printf("side %d ", 	sq->side);
+	printf("b_attack %d ",  sq->b_attack);
+	printf("w_attack %d ",  sq->w_attack);
+	printf("obj.type %d ",  sq->obj.type);
+	printf("obj.side %d\n", sq->obj.side);
+}
 
 
 uint8_t

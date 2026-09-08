@@ -139,12 +139,16 @@ gui_start_pvp_one_device(struct chess *engine, SDL_Window *window,
 					switch (event.key.keysym.sym) {
 						case SDLK_q:
 						case SDLK_ESCAPE:
-							free(oldPos.gui); // BUG: If I leave to menu I get SIGABRT
-							free(oldPos.obj);
+							if (oldPos.gui != NULL) {
+								free(oldPos.gui);
+								free(oldPos.obj);
+							}
 							return 1;
 						case SDLK_r:
-							free(oldPos.gui);
-							free(oldPos.obj);
+							if (oldPos.gui != NULL) {
+								free(oldPos.gui);
+								free(oldPos.obj);
+							}
 							return 2;
 					}
 					break;
@@ -154,11 +158,11 @@ gui_start_pvp_one_device(struct chess *engine, SDL_Window *window,
 							if (!is_mouse_holding || active.gui == NULL) break;
 							active.gui->pos.x = event.motion.x - 62;
 							active.gui->pos.y = event.motion.y - 62;
+							
 							SDL_RenderClear(renderer);
 							draw_board(renderer, &global);
 							SDL_RenderCopy(renderer, active.gui->texture, NULL, &active.gui->pos);
 							SDL_RenderPresent(renderer);
-							
 						}
 						default: break;
 					}
@@ -185,6 +189,8 @@ gui_start_pvp_one_device(struct chess *engine, SDL_Window *window,
 
 							active.gui = &global.guiBoard[i][j];
 							active.obj = &global.engine->board[i][j].obj;
+
+							global.guiBoard[i][j].is_highlighted = SDL_TRUE;
 							goto found;
 							}
 						}
@@ -196,29 +202,52 @@ found:
 					switch (event.button.button) {
 						case 1: {// Left button
 						for (uint8_t i = 0; i < 8; ++i) // If I move active figure below cursor I get literally it
-							for (uint8_t j = 0; j < 8; ++j)
-							
-							if (global.engine->board[i][j].obj.type != empty && is_under_mcursor(event.button.x, event.button.y,
-								ELEMENT_BELOW.x, ELEMENT_BELOW.y,
-								ELEMENT_BELOW.w, ELEMENT_BELOW.h)) {
-								printf("ELEMENT_BELOW\n");
-								if (engine->board[i][j].obj.side == oldPos.obj->side) {
+							for (uint8_t j = 0; j < 8; ++j) {							
+								if (global.engine->board[i][j].obj.type != empty && is_under_mcursor(event.button.x, event.button.y,
+									ELEMENT_BELOW.x, ELEMENT_BELOW.y,
+									ELEMENT_BELOW.w, ELEMENT_BELOW.h) &&
+									&global.engine->board[i][j].obj != active.obj
+									|| event.button.x < 0 || event.button.x > 1000 ||
+									event.button.y < 0 || event.button.y > 1000) {
 
-								active.gui->is_highlighted = oldPos.gui->is_highlighted;
-								active.gui->pos = oldPos.gui->pos;
-								active.gui->texture = oldPos.gui->texture;
+									
+									/* printf("%d %d\n", event.button.x, event.button.y); */
+									/* print_square_info(&global.engine->board[i][j]); */
+									
+									printf("ELEMENT_BELOW\n");
+									if (event.button.x < 0 || event.button.x > 1000 ||
+									event.button.y < 0 || event.button.y > 1000
+									|| engine->board[i][j].obj.side == oldPos.obj->side) {
 
-								active.obj->side = oldPos.obj->side;
-								active.obj->type = oldPos.obj->type;
-								active.gui = NULL;
-								active.obj = NULL;
-								printf("End section\n");
-								free(oldPos.gui);
-								free(oldPos.obj);
+									active.gui->is_highlighted = oldPos.gui->is_highlighted;
+									active.gui->pos = oldPos.gui->pos;
+									active.gui->texture = oldPos.gui->texture;
+	
+									active.obj->side = oldPos.obj->side;
+									active.obj->type = oldPos.obj->type;
+
+									active.gui->is_highlighted = SDL_FALSE;
+									active.gui = NULL;
+									active.obj = NULL;
+									printf("=========================\n");									
+									printf("End section\n");
+									
+									free(oldPos.gui);
+									free(oldPos.obj);
+									oldPos.gui = NULL;
+									oldPos.obj = NULL;
+									
+									SDL_RenderClear(renderer);
+									draw_board(renderer, &global);
+									SDL_RenderPresent(renderer);
+									goto mbutton_up_quit; // I wrote really shit code. But it'll for a while
+									}
 								}
 							}
 						}
 					}
+mbutton_up_quit:
+					printf("end case\n");
 					is_mouse_holding = SDL_FALSE;
 					break;
 				case SDL_QUIT:

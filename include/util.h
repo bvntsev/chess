@@ -79,5 +79,7 @@ enum attack_t get_attack_t(struct square *sq);
 uint8_t
 find_figure(struct square (*board)[8], enum color_t side, enum piece_t type);
 
+void
+print_square_info(struct square *sq);
 
 #endif // UTIL_H
